@@ -81,5 +81,21 @@ get_error :: proc "contextless" () -> Error {
 /* Clears the last error and the error description pointer for the calling thread. */
 clear_error :: glfw.GetError
 
+/* The procedure type for errors callback. */
+Error_Proc :: #type proc(code: Error_Code, description: string)
+
+@(private)
+_user_error_callback: Error_Proc
+
+@(private)
+_glfw_error_callback :: proc "c" (code: c.int, description: cstring) {
+	if _user_error_callback == nil do return
+	_user_error_callback(convert_error(code), string(description))
+}
+
 /* Sets the error callback. */
-set_error_callback :: glfw.SetErrorCallback
+@(disabled = !ODIN_DEBUG)
+set_error_callback :: proc "contextless" (cb_proc: Error_Proc) {
+	_user_error_callback = cb_proc
+	glfw.SetErrorCallback(_glfw_error_callback)
+}

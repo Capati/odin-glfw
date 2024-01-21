@@ -264,42 +264,61 @@ window_hint :: proc {
 	window_hint_open_gl_profile,
 }
 
-create_window_cstring_title :: proc "contextless" (
-	width, height: u32,
-	title: cstring,
-	monitor: Monitor = nil,
-	share: Window = nil,
-) -> (
-	Window,
-) {
-	return glfw.CreateWindow(i32(width), i32(height), title, monitor, share)
-}
-
-create_window_string_title :: proc (
+/* Creates a window and its associated context. */
+create_window :: proc (
 	width, height: u32,
 	title: string,
 	monitor: Monitor = nil,
 	share: Window = nil,
 	loc := #caller_location,
 ) -> (
-	Window,
+	window: Window,
 ) {
 	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
 	c_title, c_title_err := strings.clone_to_cstring(title, context.temp_allocator, loc)
-	if c_title_err != nil {
-		panic("Unable to create the GLFW window", loc)
+
+	if c_title_err != nil do return nil
+
+	window = glfw.CreateWindow(i32(width), i32(height), c_title, monitor, share)
+
+	// Setup custom callbacks
+	if window != nil {
+		window_handles[window] = Window_Handle{}
+		_setup_window_callbacks(window)
+		return
 	}
-	return create_window_cstring_title(width, height, c_title, monitor, share)
+
+	return nil
 }
 
-/* Creates a window and its associated context. */
-create_window :: proc {
-	create_window_cstring_title,
-	create_window_string_title,
+@(private)
+_setup_window_callbacks :: proc (window: Window) {
+	if window == nil do return
+	// Callbacks used for the custom event loop
+	glfw.SetKeyCallback(window, _key_callback)
+	glfw.SetCharCallback(window, _char_callback)
+	glfw.SetCursorPosCallback(window, _cursor_pos_callback)
+	glfw.SetMouseButtonCallback(window, _mouse_button_callback)
+	glfw.SetScrollCallback(window, _scroll_callback)
+	glfw.SetWindowCloseCallback(window, _close_callback)
+	glfw.SetWindowFocusCallback(window, _window_focus_callback)
+	glfw.SetCursorEnterCallback(window, _cursor_enter_callback)
+	glfw.SetWindowIconifyCallback(window, _window_iconify_callback)
+	glfw.SetWindowMaximizeCallback(window, _window_maximize_proc)
+	glfw.SetFramebufferSizeCallback(window, _framebuffer_size_callback)
+	glfw.SetWindowSizeCallback(window, _window_size_callback)
+	glfw.SetWindowPosCallback(window, _window_pos_callback)
+	glfw.SetWindowRefreshCallback(window, _window_refresh_callback)
+	glfw.SetWindowContentScaleCallback(window, _window_content_scale_callback)
+	glfw.SetCharModsCallback(window, _char_mods_callback)
+	glfw.SetDropCallback(window, _drop_callback)
 }
 
 /* Destroys the specified window and its context. */
-destroy_window :: glfw.DestroyWindow
+destroy_window :: proc(window: Window) {
+	if window != nil do delete_key(&window_handles, window)
+	glfw.DestroyWindow(window)
+}
 
 /* Checks the close flag of the specified window. */
 window_should_close :: proc "contextless" (window: Window) -> bool {
@@ -398,8 +417,12 @@ set_window_size :: proc "contextless" (window: Window, size: Window_Size) {
 	glfw.SetWindowSize(window, c.int(size.width), c.int(size.height))
 }
 
+Framebuffer_Size :: struct {
+	width, height: u32,
+}
+
 /* Retrieves the size of the framebuffer of the specified window. */
-get_framebuffer_size :: proc "contextless" (window: Window) -> Window_Size {
+get_framebuffer_size :: proc "contextless" (window: Window) -> Framebuffer_Size {
 	width, height: c.int
 	glfw.GetFramebufferSize(window, &width, &height)
 	return {u32(width), u32(height)}
@@ -528,35 +551,11 @@ get_window_user_pointer :: proc "contextless" (window: Window, $T: typeid) -> ^T
 	return nil
 }
 
-/* Sets the position callback for the specified window. */
-set_window_pos_callback :: glfw.SetWindowPosCallback
-
-/* Sets the size callback for the specified window. */
-set_window_size_callback :: glfw.SetWindowSizeCallback
-
-/* Sets the close callback for the specified window. */
-set_window_close_callback :: glfw.SetWindowCloseCallback
-
-/* Sets the refresh callback for the specified window. */
-set_window_refresh_callback :: glfw.SetWindowRefreshCallback
-
-/* Sets the focus callback for the specified window. */
-set_window_focus_callback :: glfw.SetWindowFocusCallback
-
-/* Sets the iconify callback for the specified window. */
-set_window_iconify_callback :: glfw.SetWindowIconifyCallback
-
-/* Sets the maximize callback for the specified window. */
-set_window_maximize_callback :: glfw.SetWindowMaximizeCallback
-
-/* Sets the framebuffer resize callback for the specified window. */
-set_framebuffer_size_callback :: glfw.SetFramebufferSizeCallback
-
-/* Sets the window content scale callback for the specified window. */
-set_window_content_scale_callback :: glfw.SetWindowContentScaleCallback
-
 /* Processes all pending events. */
-poll_events :: glfw.PollEvents
+poll_events :: proc "contextless" () {
+	clear_events()
+	glfw.PollEvents()
+}
 
 /* Waits until events are queued and processes them. */
 wait_events :: glfw.WaitEvents

@@ -27,6 +27,11 @@ Joystick_ID :: enum c.int {
 	Last     = JOYSTICK_16,
 }
 
+/* Convert a GLFW raw joystick id integer to idiomatic `Joystick_ID` enum */
+convert_joystick_id :: proc "contextless" (id: c.int) -> Joystick_ID {
+	return transmute(Joystick_ID)id
+}
+
 /* Returns whether the specified joystick is present. */
 joystick_present :: proc "contextless" (id: Joystick_ID) -> bool {
 	return bool(glfw.JoystickPresent(transmute(c.int)id))
@@ -143,11 +148,6 @@ get_joystick_user_pointer :: proc "contextless" (id: Joystick_ID, $T: typeid) ->
 /* Returns whether the specified joystick has a gamepad mapping. */
 joystick_is_gamepad :: proc "contextless" (id: Joystick_ID) -> bool {
 	return bool(glfw.JoystickIsGamepad(transmute(c.int)id))
-}
-
-/* Sets the joystick configuration callback. */
-set_joystick_callback :: proc(callback: Joystick_Proc = nil) -> Joystick_Proc {
-	return glfw.SetJoystickCallback(callback)
 }
 
 /* Adds the specified SDL_GameControllerDB gamepad mappings. */

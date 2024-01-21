@@ -137,6 +137,11 @@ Key :: enum c.int {
 	Menu          = KEY_MENU,
 }
 
+/* Convert a GLFW raw key integer to idiomatic `Key` enum */
+convert_key :: proc "contextless" (key: c.int) -> Key {
+	return transmute(Key)key
+}
+
 /* Returns the layout-specific name of the specified printable key. */
 get_key_name :: proc "contextless" (key: Key, scancode: i32) -> string {
 	return string(glfw.GetKeyName(transmute(c.int)key, scancode))
@@ -162,9 +167,4 @@ get_key :: proc "contextless" (window: Window, key: Key, loc := #caller_location
 	}
 
 	return transmute(Action)glfw.GetKey(window, transmute(c.int)key)
-}
-
-/* Sets the key callback. */
-set_key_callback :: proc "contextless" (window: Window, callback: Key_Proc = nil) -> Key_Proc {
-	return glfw.SetKeyCallback(window, callback)
 }

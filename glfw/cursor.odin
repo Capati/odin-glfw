@@ -47,6 +47,11 @@ Cursor_Shape :: enum c.int {
 	Not_Allowed   = NOT_ALLOWED_CURSOR,
 }
 
+/* Convert a GLFW raw cursor shape integer to idiomatic `Cursor_Shape` enum */
+convert_cursor_shape :: proc "contextless" (shape: c.int) -> Cursor_Shape {
+	return transmute(Cursor_Shape)shape
+}
+
 /* Creates a cursor with a standard shape. */
 create_standard_cursor :: proc "contextless" (shape: Cursor_Shape) -> Cursor {
 	return glfw.CreateStandardCursor(transmute(c.int)shape)
@@ -60,20 +65,4 @@ destroy_cursor :: proc "contextless" (cursor: Cursor) {
 /* Sets the cursor for the window. */
 set_cursor :: proc "contextless" (window: Window, cursor: Cursor) {
 	glfw.SetCursor(window, cursor)
-}
-
-/* Sets the cursor position callback. */
-set_cursor_pos_callback :: proc "contextless" (
-	window: Window,
-	callback: Cursor_Pos_Proc = nil,
-) -> Cursor_Pos_Proc {
-	return glfw.SetCursorPosCallback(window, callback)
-}
-
-/* Sets the cursor enter/leave callback. */
-cursor_enter_callback :: proc "contextless" (
-	window: Window,
-	callback: Cursor_Enter_Proc = nil,
-) -> Cursor_Enter_Proc {
-	return glfw.SetCursorEnterCallback(window, callback)
 }

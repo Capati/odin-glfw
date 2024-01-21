@@ -8,12 +8,24 @@ import "core:runtime"
 import glfw "bindings"
 
 /* Initializes the GLFW library. */
-init :: proc "contextless" () -> bool {
+init :: proc (allocator := context.allocator) -> (ok: bool) {
+	defer if ok do _setup_callbacks()
+	if init_events(allocator) != nil do return false
+	window_handles.allocator = allocator
 	return bool(glfw.Init())
 }
 
+@(private)
+_setup_callbacks :: proc "contextless" () {
+	glfw.SetJoystickCallback(_joystick_callback)
+}
+
 /* Terminates the GLFW library. */
-terminate :: glfw.Terminate
+terminate :: proc() {
+	delete(_events.data)
+	delete(window_handles)
+	glfw.Terminate()
+}
 
 /* Platform type (rendering backend) to request when using OpenGL ES and EGL via **ANGLE**. */
 Angle_Platform :: enum c.int {

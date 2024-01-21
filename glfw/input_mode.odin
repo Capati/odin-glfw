@@ -23,7 +23,7 @@ Input_Mode_Cursor :: enum c.int {
 }
 
 /* Sets the input mode of the cursor, whether it should behave normally, be hidden, or captured. */
-set_input_mode_cursor :: proc "contextless" (window: Window, value: Input_Mode_Cursor) {
+enable_cursor_mode :: proc "contextless" (window: Window, value: Input_Mode_Cursor) {
 	glfw.SetInputMode(window, transmute(c.int)Input_Mode.Cursor, transmute(c.int)value)
 
 	if value == .Disabled {
@@ -35,47 +35,47 @@ set_input_mode_cursor :: proc "contextless" (window: Window, value: Input_Mode_C
 }
 
 /* Gets the current input mode of the cursor. */
-get_input_mode_cursor :: proc "contextless" (window: Window) -> Input_Mode_Cursor {
+get_cursor_mode :: proc "contextless" (window: Window) -> Input_Mode_Cursor {
 	return transmute(Input_Mode_Cursor)glfw.GetInputMode(window, transmute(c.int)Input_Mode.Cursor)
 }
 
 /* Sets the input mode of sticky keys. */
-set_input_mode_sticky_keys :: proc "contextless" (window: Window, enabled: bool) {
+enable_sticky_keys :: proc "contextless" (window: Window, enabled: bool) {
 	glfw.SetInputMode(window, transmute(c.int)Input_Mode.Sticky_Keys, c.int(enabled))
 }
 
 /* Tells if the sticky keys input mode is enabled. */
-get_input_mode_sticky_keys :: proc "contextless" (window: Window) -> bool {
+get_sticky_keys :: proc "contextless" (window: Window) -> bool {
 	return glfw.GetInputMode(window, transmute(c.int)Input_Mode.Sticky_Keys) == 1
 }
 
 /* Sets the input mode of sticky mouse buttons. */
-set_input_mode_sticky_mouse_buttons :: proc "contextless" (window: Window, enabled: bool) {
+enable_sticky_mouse_buttons :: proc "contextless" (window: Window, enabled: bool) {
 	glfw.SetInputMode(window, transmute(c.int)Input_Mode.Sticky_Mouse_Buttons, c.int(enabled))
 }
 
 /* Tells if the sticky mouse buttons input mode is enabled. */
-get_input_mode_sticky_mouse_buttons :: proc "contextless" (window: Window) -> bool {
+get_sticky_mouse_buttons :: proc "contextless" (window: Window) -> bool {
 	return glfw.GetInputMode(window, transmute(c.int)Input_Mode.Sticky_Mouse_Buttons) == 1
 }
 
 /* Sets the input mode of locking key modifiers. */
-set_input_mode_lock_key_mods :: proc "contextless" (window: Window, enabled: bool) {
+enable_lock_key_mods :: proc "contextless" (window: Window, enabled: bool) {
 	glfw.SetInputMode(window, transmute(c.int)Input_Mode.Lock_Key_Mods, c.int(enabled))
 }
 
 /* Tells if the locking key modifiers input mode is enabled. */
-get_input_mode_lock_keys :: proc "contextless" (window: Window) -> bool {
+get_lock_keys :: proc "contextless" (window: Window) -> bool {
 	return glfw.GetInputMode(window, transmute(c.int)Input_Mode.Lock_Key_Mods) == 1
 }
 
 /* Sets the input mode of raw mouse motion. */
-set_input_mode_raw_mouse_motion :: proc "contextless" (window: Window, enabled: bool) {
+enable_raw_mouse_motion :: proc "contextless" (window: Window, enabled: bool) {
 	glfw.SetInputMode(window, transmute(c.int)Input_Mode.Raw_Mouse_Motion, c.int(enabled))
 }
 
 /* Tells if the raw mouse motion input mode is enabled. */
-get_input_mode_raw_mouse_motion :: proc "contextless" (window: Window) -> bool {
+get_raw_mouse_motion :: proc "contextless" (window: Window) -> bool {
 	return glfw.GetInputMode(window, transmute(c.int)Input_Mode.Raw_Mouse_Motion) == 1
 }
 
@@ -129,55 +129,23 @@ raw_mouse_motion_supported :: proc "contextless" () -> bool {
 
 /* Mouse button types. */
 Mouse_Button :: enum c.int {
-	One    = MOUSE_BUTTON_1,
-	Two    = MOUSE_BUTTON_2,
-	Three  = MOUSE_BUTTON_3,
+	Left   = MOUSE_BUTTON_1,
+	Right  = MOUSE_BUTTON_2,
+	Middle = MOUSE_BUTTON_3,
 	Four   = MOUSE_BUTTON_4,
 	Five   = MOUSE_BUTTON_5,
 	Six    = MOUSE_BUTTON_6,
 	Seven  = MOUSE_BUTTON_7,
 	Eight  = MOUSE_BUTTON_8,
 	Last   = MOUSE_BUTTON_8,
-	Left   = MOUSE_BUTTON_1,
-	Right  = MOUSE_BUTTON_2,
-	Middle = MOUSE_BUTTON_3,
+}
+
+/* Convert a GLFW raw mouse button integer to idiomatic `Mouse_Button` enum */
+convert_mouse_button :: proc "contextless" (button: c.int) -> Mouse_Button {
+	return transmute(Mouse_Button)button
 }
 
 /* Returns the last reported state of a mouse button for the specified window. */
 get_mouse_button :: proc "contextless" (window: Window, button: Mouse_Button) -> Action {
 	return transmute(Action)glfw.GetMouseButton(window, transmute(c.int)button)
-}
-
-/* Sets the Unicode character callback. */
-set_char_callback :: proc "contextless" (window: Window, callback: Char_Proc = nil) -> Char_Proc {
-	return glfw.SetCharCallback(window, callback)
-}
-
-/* Sets the Unicode character with modifiers callback. */
-set_char_mods_callback :: proc "contextless" (
-	window: Window,
-	callback: Char_Mods_Proc = nil,
-) -> Char_Mods_Proc {
-	return glfw.SetCharModsCallback(window, callback)
-}
-
-/* Sets the mouse button callback. */
-set_mouse_button_callback :: proc "contextless" (
-	window: Window,
-	callback: Mouse_Button_Proc = nil,
-) -> Mouse_Button_Proc {
-	return glfw.SetMouseButtonCallback(window, callback)
-}
-
-/* Sets the scroll callback. */
-set_scroll_callback :: proc "contextless" (
-	window: Window,
-	callback: Scroll_Proc = nil,
-) -> Scroll_Proc {
-	return glfw.SetScrollCallback(window, callback)
-}
-
-/* Sets the path drop callback. */
-set_drop_callback :: proc "contextless" (window: Window, callback: Drop_Proc = nil) -> Drop_Proc {
-	return glfw.SetDropCallback(window, callback)
 }

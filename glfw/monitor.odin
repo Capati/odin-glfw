@@ -88,16 +88,6 @@ get_monitor_user_pointer :: proc "contextless" (monitor: Monitor, $T: typeid) ->
 	return nil
 }
 
-/* Sets the monitor configuration callback. */
-set_monitor_callback :: proc "contextless" (
-    monitor: Monitor,
-    callback: Monitor_Proc,
-) -> (
-    Monitor_Proc,
-) {
-    return glfw.SetMonitorCallback(monitor, callback)
-}
-
 /* Returns the available video modes for the specified monitor. */
 get_video_modes_raw :: proc "contextless" (monitor: Monitor) -> []glfw.Video_Mode {
 	count: c.int
