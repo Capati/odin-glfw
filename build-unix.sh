@@ -1,7 +1,7 @@
 #!/bin/bash
 
 OUTPUT_DIR=build
-EXECUTABLE_NAME=hello_glfw
+EXECUTABLE_NAME=triangle-opengl
 
 # Ensure build folder exists
 if [ ! -d $OUTPUT_DIR ]; then

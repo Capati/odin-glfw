@@ -1,7 +1,7 @@
 @echo off
 
 set "OUTPUT_DIR=build"
-set "EXECUTABLE_NAME=hello_glfw.exe"
+set "EXECUTABLE_NAME=triangle-opengl.exe"
 
 set "type=%~1"
 if "%type%"=="" set type=build
