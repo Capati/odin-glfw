@@ -44,6 +44,7 @@ OpenGL_Profile :: enum c.int {
 
 // Window hints
 Window_Hint :: enum c.int {
+	// Window related hints
 	Resizable                = RESIZABLE,
 	Visible                  = VISIBLE,
 	Decorated                = DECORATED,
@@ -54,8 +55,10 @@ Window_Hint :: enum c.int {
 	Center_Cursor            = CENTER_CURSOR,
 	Transparent_Framebuffer  = TRANSPARENT_FRAMEBUFFER,
 	Focus_On_Show            = FOCUS_ON_SHOW,
-	Mouse_Passthrough        = MOUSE_PASSTHROUGH,
 	Scale_To_Monitor         = SCALE_TO_MONITOR,
+	Mouse_Passthrough        = MOUSE_PASSTHROUGH,
+	Position_X               = POSITION_X,
+	Position_Y               = POSITION_Y,
 
 	// Framebuffer hints
 	Red_Bits                 = RED_BITS,
@@ -70,49 +73,47 @@ Window_Hint :: enum c.int {
 	Accum_Alpha_Bits         = ACCUM_ALPHA_BITS,
 	Aux_Buffers              = AUX_BUFFERS,
 
-	// Framebuffer MSAA samples
-	Samples                  = SAMPLES,
-
-	// Monitor refresh rate
-	Refresh_Rate             = REFRESH_RATE,
-
 	// OpenGL stereoscopic rendering
 	Stereo                   = STEREO,
+
+	// Framebuffer MSAA samples
+	Samples                  = SAMPLES,
 
 	// Framebuffer sRGB
 	Srgb_Capable             = SRGB_CAPABLE,
 
 	// Framebuffer double buffering
 	Doublebuffer             = DOUBLEBUFFER,
+
+	// Monitor refresh rate
+	Refresh_Rate             = REFRESH_RATE,
+
+	// Context related hints
 	Client_Api               = CLIENT_API,
 	Context_Creation_Api     = CONTEXT_CREATION_API,
 	Context_Version_Major    = CONTEXT_VERSION_MAJOR,
 	Context_Version_Minor    = CONTEXT_VERSION_MINOR,
+	Opengl_Forward_Compat    = OPENGL_FORWARD_COMPAT,
+	Context_Debug            = CONTEXT_DEBUG,
+	OpenGL_Profile           = OPENGL_PROFILE,
 	Context_Robustness       = CONTEXT_ROBUSTNESS,
 	Context_Release_Behavior = CONTEXT_RELEASE_BEHAVIOR,
 	Context_No_Error         = CONTEXT_NO_ERROR,
-	// NOTE: This supersedes opengl_debug_context OPENGL_DEBUG_CONTEXT
-	Context_Debug            = CONTEXT_DEBUG,
-	Opengl_Forward_Compat    = OPENGL_FORWARD_COMPAT,
-	OpenGL_Profile           = OPENGL_PROFILE,
+
+	//  Win32 specific
+	Win32_Keyboard_Menu      = WIN32_KEYBOARD_MENU,
 
 	// macOS specific
 	Cocoa_Retina_Framebuffer = COCOA_RETINA_FRAMEBUFFER,
-
-	// macOS specific
 	Cocoa_Frame_Name         = COCOA_FRAME_NAME,
-
-	// macOS specific
 	Cocoa_Graphics_Switching = COCOA_GRAPHICS_SWITCHING,
 
 	// X11 specific
 	X11_Class_Name           = X11_CLASS_NAME,
-
-	// X11 specific
 	X11_Instance_Name        = X11_INSTANCE_NAME,
 
-	// Windows specific
-	Win32_Keyboard_Menu      = WIN32_KEYBOARD_MENU,
+	// Wayland specific
+	Wayland_App_ID           = WAYLAND_APP_ID,
 }
 
 @(private)
@@ -137,7 +138,8 @@ window_hint_int :: proc "contextless" (hint: Window_Hint, value: i32, loc := #ca
 	#partial switch hint {
 	case .Red_Bits, .Green_Bits, .Blue_Bits, .Alpha_Bits, .Depth_Bits, .Stencil_Bits,
 	.Accum_Red_Bits, .Accum_Green_Bits, .Accum_Blue_Bits, .Accum_Alpha_Bits, .Aux_Buffers,
-	.Samples, .Refresh_Rate, .Context_Version_Major, .Context_Version_Minor:
+	.Samples, .Refresh_Rate, .Context_Version_Major, .Context_Version_Minor, .Position_X,
+	.Position_Y:
 		glfw.WindowHint(transmute(c.int)hint, value)
 	case:
 		when ODIN_DEBUG {

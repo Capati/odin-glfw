@@ -11,19 +11,29 @@ import "../glfw"
 
 OPEN_GL_VERSION_MAJOR :: 4
 OPEN_GL_VERSION_MINOR :: 6
+WINDOW_WIDTH :: 800
+WINDOW_HEIGHT :: 600
 
 main :: proc() {
+	// Setup error callback before any GLFW call
 	glfw.set_error_callback(error_callback)
 
+	// Get current GLFW version values in major, minor and revision
 	glfw_version := glfw.get_version()
 	fmt.printf("GLFW: %d.%d.%d\n", expand_values(glfw_version))
+
+	// Get the version and names of all APIs for all the platforms that the library binary supports
+	glfw_version_string := glfw.get_version_string()
+	fmt.println(glfw_version_string)
 
 	if !glfw.init() do panic("Unable to initialize the GLFW library")
 	defer glfw.terminate()
 
+	// Get the selected platform
 	platform := glfw.get_platform()
 	fmt.printf("Platform: %v\n", platform)
 
+	// Setup OpenGL context
 	glfw.window_hint(.Context_Version_Major, OPEN_GL_VERSION_MAJOR)
 	glfw.window_hint(.Context_Version_Minor, OPEN_GL_VERSION_MINOR)
 	glfw.window_hint(.OpenGL_Profile, glfw.OpenGL_Profile.Core)
@@ -32,16 +42,19 @@ main :: proc() {
 		glfw.window_hint(.OpenGL_Profile, glfw.OpenGL_Profile.Compat)
 	}
 
-	// Start a hidden window, so we can center "behind the scene" to avoid window jump
-	glfw.window_hint(.Visible, false)
+	// Center the window using Position_X and Position_Y window hints.
+	// This removes the need to create a hidden window, move it and then show it
+	{
+		monitor := glfw.get_primary_monitor()
+		video_mode := glfw.get_video_mode(monitor)
 
-	window := glfw.create_window(800, 600, "Window")
+		glfw.window_hint(.Position_X, video_mode.width / 2 - WINDOW_WIDTH / 2)
+		glfw.window_hint(.Position_Y, video_mode.height / 2 - WINDOW_HEIGHT / 2)
+	}
+
+	window := glfw.create_window(WINDOW_WIDTH, WINDOW_HEIGHT, "Window")
 	assert(window != nil, "Unable to create the GLFW window")
 	defer glfw.destroy_window(window)
-
-	// Show a centered window
-	glfw.center_window(window)
-	glfw.show_window(window)
 
 	// Enable Caps Lock and Num Lock modifiers
 	glfw.enable_lock_key_mods(window, true)
@@ -50,12 +63,14 @@ main :: proc() {
 
 	glfw.set_framebuffer_size_callback(window, framebuffer_size_callback)
 
+	// Create the OpenGL context for the current window
 	glfw.make_context_current(window)
 	gl.load_up_to(OPEN_GL_VERSION_MAJOR, OPEN_GL_VERSION_MINOR, glfw.gl_set_proc_address)
 
 	for !glfw.window_should_close(window) {
 		glfw.poll_events()
 
+		// Process the custom event loop (similar to SDL)
 		for glfw.has_next_event() {
 			#partial switch event in glfw.next_event() {
 			case glfw.Close_Event:
