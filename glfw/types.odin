@@ -18,8 +18,40 @@ Cursor :: glfw.Cursor
 /* Custom allocator object. */
 Allocator :: glfw.Allocator
 
+Gamepad_Buttons_State :: struct {
+	a:             bool,
+	b:             bool,
+	x:             bool,
+	y:             bool,
+	left_bumper:   bool,
+	right_bumper:  bool,
+	back:          bool,
+	start:         bool,
+	guide:         bool,
+	left_thumb:    bool,
+	right_thumb:   bool,
+	dpad_up:       bool,
+	dpad_right:    bool,
+	dpad_down:     bool,
+	dpad_left:     bool,
+	left_trigger:  bool,
+	right_trigger: bool,
+}
+
+Gamepad_Axes_State :: struct {
+	left_x:        f32,
+	left_y:        f32,
+	right_x:       f32,
+	right_y:       f32,
+	left_trigger:  f32,
+	right_trigger: f32,
+}
+
 /* Input state of a gamepad. */
-Gamepad_State :: glfw.Gamepad_State
+Gamepad_State :: struct {
+	buttons: Gamepad_Buttons_State,
+	axes:    Gamepad_Axes_State,
+}
 
 /* Describes a single 2D image. */
 Image :: struct {

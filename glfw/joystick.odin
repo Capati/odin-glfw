@@ -161,13 +161,44 @@ get_gamepad_name :: proc "contextless" (id: Joystick_ID) -> string {
 }
 
 /* Retrieves the state of the specified joystick remapped as a gamepad. */
-get_gamepad_state :: proc "contextless" (id: Joystick_ID) -> (Gamepad_State, bool) #optional_ok {
-	gamepad_state: Gamepad_State
-	success := bool(glfw.GetGamepadState(transmute(c.int)id, &gamepad_state))
+get_gamepad_state :: proc "contextless" (
+	id: Joystick_ID,
+) -> (
+	state: Gamepad_State,
+	success: bool,
+) #optional_ok {
+	raw: glfw.Gamepad_State
+	success = bool(glfw.GetGamepadState(transmute(c.int)id, &raw))
+	if !success do return
 
-	if success {
-		return gamepad_state, success
+	state.buttons = Gamepad_Buttons_State {
+		a            = raw.buttons[GAMEPAD_BUTTON_A] != 0,
+		b            = raw.buttons[GAMEPAD_BUTTON_B] != 0,
+		x            = raw.buttons[GAMEPAD_BUTTON_X] != 0,
+		y            = raw.buttons[GAMEPAD_BUTTON_Y] != 0,
+		left_bumper  = raw.buttons[GAMEPAD_BUTTON_LEFT_BUMPER] != 0,
+		right_bumper = raw.buttons[GAMEPAD_BUTTON_RIGHT_BUMPER] != 0,
+		back         = raw.buttons[GAMEPAD_BUTTON_BACK] != 0,
+		start        = raw.buttons[GAMEPAD_BUTTON_START] != 0,
+		guide        = raw.buttons[GAMEPAD_BUTTON_GUIDE] != 0,
+		left_thumb   = raw.buttons[GAMEPAD_BUTTON_LEFT_THUMB] != 0,
+		right_thumb  = raw.buttons[GAMEPAD_BUTTON_RIGHT_THUMB] != 0,
+		dpad_up      = raw.buttons[GAMEPAD_BUTTON_DPAD_UP] != 0,
+		dpad_right   = raw.buttons[GAMEPAD_BUTTON_DPAD_RIGHT] != 0,
+		dpad_down    = raw.buttons[GAMEPAD_BUTTON_DPAD_DOWN] != 0,
+		dpad_left    = raw.buttons[GAMEPAD_BUTTON_DPAD_LEFT] != 0,
+		left_trigger  = raw.axes[GAMEPAD_AXIS_LEFT_TRIGGER] > 0.0,
+		right_trigger = raw.axes[GAMEPAD_AXIS_RIGHT_TRIGGER] > 0.0,
 	}
 
-	return {}, success
+	state.axes = Gamepad_Axes_State {
+		left_x        = raw.axes[GAMEPAD_AXIS_LEFT_X],
+		left_y        = raw.axes[GAMEPAD_AXIS_LEFT_Y],
+		right_x       = raw.axes[GAMEPAD_AXIS_RIGHT_X],
+		right_y       = raw.axes[GAMEPAD_AXIS_RIGHT_Y],
+		left_trigger  = raw.axes[GAMEPAD_AXIS_LEFT_TRIGGER],
+		right_trigger = raw.axes[GAMEPAD_AXIS_RIGHT_TRIGGER],
+	}
+
+	return
 }
