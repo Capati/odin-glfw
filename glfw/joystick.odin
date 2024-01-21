@@ -62,7 +62,7 @@ get_joystick_buttons :: proc "contextless" (id: Joystick_ID) -> []u8 {
 }
 
 /* Holds all GLFW hat values in their raw form. */
-Hat :: struct {
+Joystick_Hat :: struct {
 	centered:   bool,
 	up:         bool,
 	right:      bool,
@@ -87,7 +87,7 @@ get_joystick_hats :: proc(id: Joystick_ID) -> []u8 {
 }
 
 /* Returns the state of the given raw hat. */
-get_hat_state_from_raw_hat :: proc "contextless" (hat: u8) -> (ret: Hat) {
+get_hat_state_from_raw_hat :: proc "contextless" (hat: u8) -> (ret: Joystick_Hat) {
 	ret.centered = (hat & HAT_CENTERED) != 0
 	ret.up = (hat & HAT_UP) != 0
 	ret.right = (hat & HAT_RIGHT) != 0
@@ -101,7 +101,12 @@ get_hat_state_from_raw_hat :: proc "contextless" (hat: u8) -> (ret: Hat) {
 }
 
 /* Returns the state of the specified joystick for the given hat state. */
-get_hat_state_from_state :: proc "contextless" (id: Joystick_ID, state: u32) -> (red: Hat) {
+get_hat_state_from_state :: proc "contextless" (
+	id: Joystick_ID,
+	state: u32,
+) -> (
+	red: Joystick_Hat,
+) {
 	count: c.int
 	hats := glfw.GetJoystickHats(transmute(c.int)id, &count)
 
