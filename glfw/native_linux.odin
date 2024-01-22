@@ -17,11 +17,11 @@ foreign glfw {
 	@(link_name = "glfwGetX11Display")
 	get_x11_display :: proc() -> rawptr ---
 	@(link_name = "glfwGetX11Adapter")
-	get_x11_adapter :: proc(monitor: Monitor_Handle) -> c.uint32_t ---
+	get_x11_adapter :: proc(monitor: Monitor) -> c.uint32_t ---
 	@(link_name = "glfwGetX11Monitor")
-	get_x11_monitor :: proc(monitor: Monitor_Handle) -> c.uint32_t ---
+	get_x11_monitor :: proc(monitor: Monitor) -> c.uint32_t ---
 	@(link_name = "glfwGetX11Window")
-	get_x11_window :: proc(window: Window_Handle) -> c.uint32_t ---
+	get_x11_window :: proc(window: Window) -> c.uint32_t ---
 	@(link_name = "glfwSetX11SelectionString")
 	set_x11_selection_string :: proc(string: cstring) ---
 	@(link_name = "glfwGetX11SelectionString")
@@ -30,7 +30,7 @@ foreign glfw {
 	@(link_name = "glfwGetWaylandDisplay")
 	get_wayland_display :: proc() -> rawptr ---
 	@(link_name = "glfwGetWaylandMonitor")
-	get_wayland_monitor :: proc(monitor: Monitor_Handle) -> rawptr ---
+	get_wayland_monitor :: proc(monitor: Monitor) -> rawptr ---
 	@(link_name = "glfwGetWaylandWindow")
-	get_wayland_window :: proc(window: Window_Handle) -> rawptr ---
+	get_wayland_window :: proc(window: Window) -> rawptr ---
 }
