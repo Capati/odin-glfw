@@ -266,12 +266,54 @@ window_hint :: proc {
 	window_hint_open_gl_profile,
 }
 
+Enabled_Events :: enum {
+	Key,
+	Char,
+	Cursor_Pos,
+	Mouse_Button,
+	Scroll,
+	Window_Close,
+	Window_Focus,
+	Cursor_Enter,
+	Window_Iconify,
+	Window_Maximize,
+	Framebuffer_Size,
+	Window_Size,
+	Window_Pos,
+	Window_Refresh,
+	Window_Content_Scale,
+	Char_Mods,
+	Drop,
+}
+Enabled_Events_Flags :: bit_set[Enabled_Events]
+
+DEFAULT_ENABLED_EVENTS :: Enabled_Events_Flags{
+	.Key,
+	.Char,
+	.Cursor_Pos,
+	.Mouse_Button,
+	.Scroll,
+	.Window_Close,
+	.Window_Focus,
+	.Cursor_Enter,
+	.Window_Iconify,
+	.Window_Maximize,
+	.Framebuffer_Size,
+	.Window_Size,
+	.Window_Pos,
+	.Window_Refresh,
+	.Window_Content_Scale,
+	.Char_Mods,
+	.Drop,
+}
+
 /* Creates a window and its associated context. */
 create_window :: proc (
 	width, height: u32,
 	title: string,
 	monitor: Monitor = nil,
 	share: Window = nil,
+	enabled_events := DEFAULT_ENABLED_EVENTS,
 	loc := #caller_location,
 ) -> (
 	window: Window,
@@ -285,8 +327,8 @@ create_window :: proc (
 
 	// Setup custom callbacks
 	if window != nil {
-		_window_handles[window] = Window_Handle{}
-		_setup_window_callbacks(window)
+		_window_handles[window] = Window_Handle{ enabled = enabled_events }
+		_setup_window_callbacks(window, enabled_events)
 		return
 	}
 
@@ -294,26 +336,64 @@ create_window :: proc (
 }
 
 @(private)
-_setup_window_callbacks :: proc (window: Window) {
+_setup_window_callbacks :: proc (window: Window, enabled: Enabled_Events_Flags) {
 	if window == nil do return
-	// Callbacks used for the custom event loop
-	glfw.SetKeyCallback(window, _key_callback)
-	glfw.SetCharCallback(window, _char_callback)
-	glfw.SetCursorPosCallback(window, _cursor_pos_callback)
-	glfw.SetMouseButtonCallback(window, _mouse_button_callback)
-	glfw.SetScrollCallback(window, _scroll_callback)
-	glfw.SetWindowCloseCallback(window, _close_callback)
-	glfw.SetWindowFocusCallback(window, _window_focus_callback)
-	glfw.SetCursorEnterCallback(window, _cursor_enter_callback)
-	glfw.SetWindowIconifyCallback(window, _window_iconify_callback)
-	glfw.SetWindowMaximizeCallback(window, _window_maximize_proc)
-	glfw.SetFramebufferSizeCallback(window, _framebuffer_size_callback)
-	glfw.SetWindowSizeCallback(window, _window_size_callback)
-	glfw.SetWindowPosCallback(window, _window_pos_callback)
-	glfw.SetWindowRefreshCallback(window, _window_refresh_callback)
-	glfw.SetWindowContentScaleCallback(window, _window_content_scale_callback)
-	glfw.SetCharModsCallback(window, _char_mods_callback)
-	glfw.SetDropCallback(window, _drop_callback)
+
+	// No events enabled
+	if enabled == {} do return
+
+	// Setup enabled callbacks used for the custom event loop
+	if .Key in enabled {
+		glfw.SetKeyCallback(window, _key_callback)
+	}
+	if .Char in enabled {
+		glfw.SetCharCallback(window, _char_callback)
+	}
+	if .Cursor_Pos in enabled {
+		glfw.SetCursorPosCallback(window, _cursor_pos_callback)
+	}
+	if .Mouse_Button in enabled {
+		glfw.SetMouseButtonCallback(window, _mouse_button_callback)
+	}
+	if .Scroll in enabled {
+		glfw.SetScrollCallback(window, _scroll_callback)
+	}
+	if .Window_Close in enabled {
+		glfw.SetWindowCloseCallback(window, _close_callback)
+	}
+	if .Window_Focus in enabled {
+		glfw.SetWindowFocusCallback(window, _window_focus_callback)
+	}
+	if .Cursor_Enter in enabled {
+		glfw.SetCursorEnterCallback(window, _cursor_enter_callback)
+	}
+	if .Window_Iconify in enabled {
+		glfw.SetWindowIconifyCallback(window, _window_iconify_callback)
+	}
+	if .Window_Maximize in enabled {
+		glfw.SetWindowMaximizeCallback(window, _window_maximize_proc)
+	}
+	if .Framebuffer_Size in enabled {
+		glfw.SetFramebufferSizeCallback(window, _framebuffer_size_callback)
+	}
+	if .Window_Size in enabled {
+		glfw.SetWindowSizeCallback(window, _window_size_callback)
+	}
+	if .Window_Pos in enabled {
+		glfw.SetWindowPosCallback(window, _window_pos_callback)
+	}
+	if .Window_Refresh in enabled {
+		glfw.SetWindowRefreshCallback(window, _window_refresh_callback)
+	}
+	if .Window_Content_Scale in enabled {
+		glfw.SetWindowContentScaleCallback(window, _window_content_scale_callback)
+	}
+	if .Char_Mods in enabled {
+		glfw.SetCharModsCallback(window, _char_mods_callback)
+	}
+	if .Drop in enabled {
+		glfw.SetDropCallback(window, _drop_callback)
+	}
 }
 
 /* Destroys the specified window and its context. */

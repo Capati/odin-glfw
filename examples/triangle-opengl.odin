@@ -26,9 +26,9 @@ Vertex :: struct {
 }
 
 vertices := [3]Vertex {
-	{ { -0.6, -0.4 }, { 1.0, 0.0, 0.0 } },
-    { {  0.6, -0.4 }, { 0.0, 1.0, 0.0 } },
-    { {  0.0,  0.6 }, { 0.0, 0.0, 1.0 } },
+	{{-0.6, -0.4}, {1.0, 0.0, 0.0}},
+	{{0.6, -0.4}, {0.0, 1.0, 0.0}},
+	{{0.0, 0.6}, {0.0, 0.0, 1.0}},
 }
 
 main :: proc() {
@@ -67,7 +67,17 @@ main :: proc() {
 	glfw.window_hint(.Position_X, video_mode.width / 2 - WINDOW_WIDTH / 2)
 	glfw.window_hint(.Position_Y, video_mode.height / 2 - WINDOW_HEIGHT / 2)
 
-	window := glfw.create_window(WINDOW_WIDTH, WINDOW_HEIGHT, "OpenGL Triangle in Odin Language")
+	// Enabled custom events types
+	enabled_events := glfw.Enabled_Events_Flags{.Key, .Framebuffer_Size}
+
+	window := glfw.create_window(
+		WINDOW_WIDTH,
+		WINDOW_HEIGHT,
+		"OpenGL Triangle in Odin Language",
+		nil,
+		nil,
+		enabled_events,
+	)
 	assert(window != nil, "Unable to create the GLFW window")
 	defer glfw.destroy_window(window)
 
@@ -147,6 +157,9 @@ main :: proc() {
 		offset_of(Vertex, col),
 	)
 
+	initial_size := glfw.get_framebuffer_size(window)
+	ratio := f32(initial_size.width) / f32(initial_size.height)
+
 	for !glfw.window_should_close(window) {
 		// Process events to trigger event callbacks and fill the custom event loop
 		glfw.poll_events()
@@ -158,13 +171,12 @@ main :: proc() {
 				if event.key == .Escape {
 					glfw.set_window_should_close(window, true)
 				}
+			case glfw.Framebuffer_Resize_Event:
+				ratio = f32(event.size.width) / f32(event.size.height)
+				gl.Viewport(0, 0, i32(event.size.width), i32(event.size.height))
 			}
 		}
 
-		size := glfw.get_framebuffer_size(window)
-		ratio := f32(size.width) / f32(size.height)
-
-		gl.Viewport(0, 0, i32(size.width), i32(size.height))
 		gl.Clear(gl.COLOR_BUFFER_BIT)
 
 		m := glm.mat4Rotate({0.0, 0.0, 1.0}, f32(glfw.get_time()))
