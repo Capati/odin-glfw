@@ -27,7 +27,7 @@ Window_Handle :: struct {
 }
 
 @(private)
-window_handles: map[Window]Window_Handle
+_window_handles: map[Window]Window_Handle
 
 /* The procedure type for joystick configuration callback. */
 Joystick_Proc :: #type proc(joy: Joystick_ID, event: Event_Status)
@@ -101,7 +101,7 @@ _framebuffer_size_callback :: proc "c" (window: Window, width, height: c.int) {
 
 	size := Framebuffer_Size{u32(width), u32(height)}
 
-	if handle, ok := &window_handles[window]; ok {
+	if handle, ok := &_window_handles[window]; ok {
 		if handle.framebuffer_size_proc != nil {
 			handle.framebuffer_size_proc(window, size)
 		}
@@ -128,7 +128,7 @@ set_framebuffer_size_callback :: proc "contextless" (
 ) {
 	// The main callback was set on window creation (default for custom event loop)
 	// Here we only set for the user callback
-	if handle, ok := &window_handles[window]; ok {
+	if handle, ok := &_window_handles[window]; ok {
 		handle^.framebuffer_size_proc = cb_proc
 	}
 }
@@ -142,7 +142,7 @@ _window_size_callback :: proc "c" (window: Window, width, height: c.int) {
 
 	size := Window_Size{u32(width), u32(height)}
 
-	if handle, ok := &window_handles[window]; ok {
+	if handle, ok := &_window_handles[window]; ok {
 		if handle.window_size_proc != nil {
 			handle.window_size_proc(window, size)
 		}
@@ -166,7 +166,7 @@ _window_size_callback :: proc "c" (window: Window, width, height: c.int) {
 set_window_size_callback :: proc "contextless" (window: Window, cb_proc: Window_Size_Proc) {
 	// The main callback was set on window creation (default for custom event loop)
 	// Here we only set for the user callback
-	if handle, ok := &window_handles[window]; ok {
+	if handle, ok := &_window_handles[window]; ok {
 		handle^.window_size_proc = cb_proc
 	}
 }
@@ -180,7 +180,7 @@ _window_pos_callback :: proc "c" (window: Window, xpos, ypos: c.int) {
 
 	pos := Window_Pos{u32(xpos), u32(ypos)}
 
-	if handle, ok := &window_handles[window]; ok {
+	if handle, ok := &_window_handles[window]; ok {
 		if handle.window_pos_proc != nil {
 			handle.window_pos_proc(window, pos)
 		}
@@ -204,7 +204,7 @@ _window_pos_callback :: proc "c" (window: Window, xpos, ypos: c.int) {
 set_window_pos_callback :: proc "contextless" (window: Window, cb_proc: Window_Pos_Proc) {
 	// The main callback was set on window creation (default for custom event loop)
 	// Here we only set for the user callback
-	if handle, ok := &window_handles[window]; ok {
+	if handle, ok := &_window_handles[window]; ok {
 		handle^.window_pos_proc = cb_proc
 	}
 }
@@ -216,7 +216,7 @@ Window_Refresh_Proc :: #type proc(window: Window)
 _window_refresh_callback :: proc "c" (window: Window) {
 	context = runtime.default_context()
 
-	if handle, ok := &window_handles[window]; ok {
+	if handle, ok := &_window_handles[window]; ok {
 		if handle.window_refresh_proc != nil {
 			handle.window_refresh_proc(window)
 		}
@@ -229,7 +229,7 @@ _window_refresh_callback :: proc "c" (window: Window) {
 set_window_refresh_callback :: proc "contextless" (window: Window, cb_proc: Window_Refresh_Proc) {
 	// The main callback was set on window creation (default for custom event loop)
 	// Here we only set for the user callback
-	if handle, ok := &window_handles[window]; ok {
+	if handle, ok := &_window_handles[window]; ok {
 		handle^.window_refresh_proc = cb_proc
 	}
 }
@@ -243,7 +243,7 @@ _window_content_scale_callback :: proc "c" (window: Window, xscale, yscale: f32)
 
 	scale := Window_Content_Scale{xscale, yscale}
 
-	if handle, ok := &window_handles[window]; ok {
+	if handle, ok := &_window_handles[window]; ok {
 		if handle.window_content_scale_proc != nil {
 			handle.window_content_scale_proc(window, scale)
 		}
@@ -270,7 +270,7 @@ set_window_content_scale_callback :: proc "contextless" (
 ) {
 	// The main callback was set on window creation (default for custom event loop)
 	// Here we only set for the user callback
-	if handle, ok := &window_handles[window]; ok {
+	if handle, ok := &_window_handles[window]; ok {
 		handle^.window_content_scale_proc = cb_proc
 	}
 }
@@ -291,7 +291,7 @@ _char_mods_callback :: proc "c" (window: Window, codepoint: rune, mods: c.int) {
 		num_lock  = (mods & MOD_NUM_LOCK) != 0,
 	}
 
-	if handle, ok := &window_handles[window]; ok {
+	if handle, ok := &_window_handles[window]; ok {
 		if handle.char_mods_proc != nil {
 			handle.char_mods_proc(window, codepoint, _mods)
 		}
@@ -304,7 +304,7 @@ _char_mods_callback :: proc "c" (window: Window, codepoint: rune, mods: c.int) {
 set_char_mods_callback :: proc "contextless" (window: Window, cb_proc: Char_Mods_Proc = nil) {
 	// The main callback was set on window creation (default for custom event loop)
 	// Here we only set for the user callback
-	if handle, ok := &window_handles[window]; ok {
+	if handle, ok := &_window_handles[window]; ok {
 		handle^.char_mods_proc = cb_proc
 	}
 }
@@ -316,7 +316,7 @@ Drop_Proc :: #type proc(window: Window, paths: []cstring)
 _drop_callback :: proc "c" (window: Window, count: c.int, paths: [^]cstring) {
 	context = runtime.default_context()
 
-	if handle, ok := &window_handles[window]; ok {
+	if handle, ok := &_window_handles[window]; ok {
 		if handle.drop_proc != nil {
 			handle.drop_proc(window, paths[:count])
 		}
@@ -329,7 +329,7 @@ _drop_callback :: proc "c" (window: Window, count: c.int, paths: [^]cstring) {
 set_drop_callback :: proc "contextless" (window: Window, cb_proc: Drop_Proc) {
 	// The main callback was set on window creation (default for custom event loop)
 	// Here we only set for the user callback
-	if handle, ok := &window_handles[window]; ok {
+	if handle, ok := &_window_handles[window]; ok {
 		handle^.drop_proc = cb_proc
 	}
 }
@@ -360,7 +360,7 @@ _key_callback :: proc "c" (window: Window, key, scancode, action, mods: c.int) {
 
 	_action := transmute(Action)action
 
-	if handle, ok := &window_handles[window]; ok {
+	if handle, ok := &_window_handles[window]; ok {
 		if handle.key_proc != nil {
 			handle.key_proc(window, _key, i32(scancode), _action, _mods)
 		}
@@ -380,7 +380,7 @@ _key_callback :: proc "c" (window: Window, key, scancode, action, mods: c.int) {
 set_key_callback :: proc "contextless" (window: Window, cb_proc: Key_Proc) {
 	// The main callback was set on window creation (default for custom event loop)
 	// Here we only set for the user callback
-	if handle, ok := &window_handles[window]; ok {
+	if handle, ok := &_window_handles[window]; ok {
 		handle^.key_proc = cb_proc
 	}
 }
@@ -392,7 +392,7 @@ Char_Proc :: #type proc(window: Window, codepoint: rune)
 _char_callback :: proc "c" (window: Window, codepoint: rune) {
 	context = runtime.default_context()
 
-	if handle, ok := &window_handles[window]; ok {
+	if handle, ok := &_window_handles[window]; ok {
 		if handle.char_proc != nil {
 			handle.char_proc(window, codepoint)
 		}
@@ -405,7 +405,7 @@ _char_callback :: proc "c" (window: Window, codepoint: rune) {
 set_char_callback :: proc "contextless" (window: Window, cb_proc: Char_Proc) {
 	// The main callback was set on window creation (default for custom event loop)
 	// Here we only set for the user callback
-	if handle, ok := &window_handles[window]; ok {
+	if handle, ok := &_window_handles[window]; ok {
 		handle^.char_proc = cb_proc
 	}
 }
@@ -417,7 +417,7 @@ Cursor_Pos_Proc :: #type proc(window: Window, pos: Cursor_Position)
 _cursor_pos_callback :: proc "c" (window: Window, xpos, ypos: f64) {
 	context = runtime.default_context()
 
-	if handle, ok := &window_handles[window]; ok {
+	if handle, ok := &_window_handles[window]; ok {
 		if handle.cursor_pos_proc != nil {
 			handle.cursor_pos_proc(window, {xpos, ypos})
 		}
@@ -430,7 +430,7 @@ _cursor_pos_callback :: proc "c" (window: Window, xpos, ypos: f64) {
 set_cursor_pos_callback :: proc "contextless" (window: Window, cb_proc: Cursor_Pos_Proc) {
 	// The main callback was set on window creation (default for custom event loop)
 	// Here we only set for the user callback
-	if handle, ok := &window_handles[window]; ok {
+	if handle, ok := &_window_handles[window]; ok {
 		handle^.cursor_pos_proc = cb_proc
 	}
 }
@@ -468,7 +468,7 @@ _mouse_button_callback :: proc "c" (window: Window, button, action, mods: c.int)
 
 	_action := transmute(Action)action
 
-	if handle, ok := &window_handles[window]; ok {
+	if handle, ok := &_window_handles[window]; ok {
 		if handle.mouse_button_proc != nil {
 			handle.mouse_button_proc(window, _button, _action, _mods)
 		}
@@ -486,7 +486,7 @@ _mouse_button_callback :: proc "c" (window: Window, button, action, mods: c.int)
 set_mouse_button_callback :: proc "contextless" (window: Window, cb_proc: Mouse_Button_Proc) {
 	// The main callback was set on window creation (default for custom event loop)
 	// Here we only set for the user callback
-	if handle, ok := &window_handles[window]; ok {
+	if handle, ok := &_window_handles[window]; ok {
 		handle^.mouse_button_proc = cb_proc
 	}
 }
@@ -498,7 +498,7 @@ Scroll_Proc :: #type proc(window: Window, offset: Scroll_Offset)
 _scroll_callback :: proc "c" (window: Window, xoffset, yoffset: f64) {
 	context = runtime.default_context()
 
-	if handle, ok := &window_handles[window]; ok {
+	if handle, ok := &_window_handles[window]; ok {
 		if handle.scroll_proc != nil {
 			handle.scroll_proc(window, {xoffset, yoffset})
 		}
@@ -511,7 +511,7 @@ _scroll_callback :: proc "c" (window: Window, xoffset, yoffset: f64) {
 set_scroll_callback :: proc "contextless" (window: Window, cb_proc: Scroll_Proc) {
 	// The main callback was set on window creation (default for custom event loop)
 	// Here we only set for the user callback
-	if handle, ok := &window_handles[window]; ok {
+	if handle, ok := &_window_handles[window]; ok {
 		handle^.scroll_proc = cb_proc
 	}
 }
@@ -523,7 +523,7 @@ Window_Close_Proc :: #type proc(window: Window)
 _close_callback :: proc "c" (window: Window) {
 	context = runtime.default_context()
 
-	if handle, ok := &window_handles[window]; ok {
+	if handle, ok := &_window_handles[window]; ok {
 		if handle.window_close_proc != nil {
 			handle.window_close_proc(window)
 		}
@@ -536,7 +536,7 @@ _close_callback :: proc "c" (window: Window) {
 set_window_close_callback :: proc "contextless" (window: Window, cb_proc: Window_Close_Proc) {
 	// The main callback was set on window creation (default for custom event loop)
 	// Here we only set for the user callback
-	if handle, ok := &window_handles[window]; ok {
+	if handle, ok := &_window_handles[window]; ok {
 		handle^.window_close_proc = cb_proc
 	}
 }
@@ -548,7 +548,7 @@ Window_Focus_Proc :: #type proc(window: Window, focused: bool)
 _window_focus_callback :: proc "c" (window: Window, focused: c.int) {
 	context = runtime.default_context()
 
-	if handle, ok := &window_handles[window]; ok {
+	if handle, ok := &_window_handles[window]; ok {
 		if handle.window_focus_proc != nil {
 			handle.window_focus_proc(window, bool(focused))
 		}
@@ -561,7 +561,7 @@ _window_focus_callback :: proc "c" (window: Window, focused: c.int) {
 set_window_focus_callback :: proc(window: Window, cb_proc: Window_Focus_Proc) {
 	// The main callback was set on window creation (default for custom event loop)
 	// Here we only set for the user callback
-	if handle, ok := &window_handles[window]; ok {
+	if handle, ok := &_window_handles[window]; ok {
 		handle^.window_focus_proc = cb_proc
 	}
 }
@@ -573,7 +573,7 @@ Cursor_Enter_Proc :: #type proc(window: Window, entered: bool)
 _cursor_enter_callback :: proc "c" (window: Window, entered: b32) {
 	context = runtime.default_context()
 
-	if handle, ok := &window_handles[window]; ok {
+	if handle, ok := &_window_handles[window]; ok {
 		if handle.cursor_enter_proc != nil {
 			handle.cursor_enter_proc(window, bool(entered))
 		}
@@ -586,7 +586,7 @@ _cursor_enter_callback :: proc "c" (window: Window, entered: b32) {
 set_cursor_enter_callback :: proc "contextless" (window: Window, cb_proc: Cursor_Enter_Proc) {
 	// The main callback was set on window creation (default for custom event loop)
 	// Here we only set for the user callback
-	if handle, ok := &window_handles[window]; ok {
+	if handle, ok := &_window_handles[window]; ok {
 		handle^.cursor_enter_proc = cb_proc
 	}
 }
@@ -598,7 +598,7 @@ Window_Minimized_Proc :: #type proc(window: Window, iconified: bool)
 _window_iconify_callback :: proc "c" (window: Window, iconified: b32) {
 	context = runtime.default_context()
 
-	if handle, ok := &window_handles[window]; ok {
+	if handle, ok := &_window_handles[window]; ok {
 		if handle.window_minimized_proc != nil {
 			handle.window_minimized_proc(window, bool(iconified))
 		}
@@ -614,7 +614,7 @@ set_window_iconify_callback :: proc "contextless" (
 ) {
 	// The main callback was set on window creation (default for custom event loop)
 	// Here we only set for the user callback
-	if handle, ok := &window_handles[window]; ok {
+	if handle, ok := &_window_handles[window]; ok {
 		handle^.window_minimized_proc = cb_proc
 	}
 }
@@ -626,7 +626,7 @@ Window_Maximize_Proc :: #type proc(window: Window, maximized: bool)
 _window_maximize_proc :: proc "c" (window: Window, maximized: b32) {
 	context = runtime.default_context()
 
-	if handle, ok := &window_handles[window]; ok {
+	if handle, ok := &_window_handles[window]; ok {
 		if handle.window_maximize_proc != nil {
 			handle.window_maximize_proc(window, bool(maximized))
 		}
@@ -642,7 +642,7 @@ set_window_maximize_callback :: proc "contextless" (
 ) {
 	// The main callback was set on window creation (default for custom event loop)
 	// Here we only set for the user callback
-	if handle, ok := &window_handles[window]; ok {
+	if handle, ok := &_window_handles[window]; ok {
 		handle^.window_maximize_proc = cb_proc
 	}
 }

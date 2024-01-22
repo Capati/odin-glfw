@@ -11,7 +11,7 @@ import glfw "bindings"
 init :: proc (allocator := context.allocator) -> (ok: bool) {
 	defer if ok do _setup_callbacks()
 	if init_events(allocator) != nil do return false
-	window_handles.allocator = allocator
+	_window_handles.allocator = allocator
 	return bool(glfw.Init())
 }
 
@@ -23,7 +23,7 @@ _setup_callbacks :: proc "contextless" () {
 /* Terminates the GLFW library. */
 terminate :: proc() {
 	delete(_events.data)
-	delete(window_handles)
+	delete(_window_handles)
 	glfw.Terminate()
 }
 

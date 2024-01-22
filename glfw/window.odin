@@ -285,7 +285,7 @@ create_window :: proc (
 
 	// Setup custom callbacks
 	if window != nil {
-		window_handles[window] = Window_Handle{}
+		_window_handles[window] = Window_Handle{}
 		_setup_window_callbacks(window)
 		return
 	}
@@ -318,7 +318,7 @@ _setup_window_callbacks :: proc (window: Window) {
 
 /* Destroys the specified window and its context. */
 destroy_window :: proc(window: Window) {
-	if window != nil do delete_key(&window_handles, window)
+	if window != nil do delete_key(&_window_handles, window)
 	glfw.DestroyWindow(window)
 }
 
