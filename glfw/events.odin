@@ -171,12 +171,12 @@ _events: Event_Queue
 
 // Default events queue capacity
 @(private)
-DEFAULT_EVENTS_CAPACITY :: #config(DEFAULT_EVENTS_CAPACITY, 2048)
+GLFW_EVENTS_CAPACITY :: #config(GLFW_EVENTS_CAPACITY, 2048)
 
 @(private)
 init_events :: proc(
 	allocator := context.allocator,
-	capacity := DEFAULT_EVENTS_CAPACITY,
+	capacity := GLFW_EVENTS_CAPACITY,
 ) -> mem.Allocator_Error {
 	return queue.init(&_events, capacity, allocator)
 }

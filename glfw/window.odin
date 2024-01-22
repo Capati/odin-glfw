@@ -560,10 +560,16 @@ poll_events :: proc "contextless" () {
 }
 
 /* Waits until events are queued and processes them. */
-wait_events :: glfw.WaitEvents
+wait_events :: proc "contextless" () {
+	clear_events()
+	glfw.WaitEvents()
+}
 
 /* Waits with timeout until events are queued and processes them. */
-wait_events_timeout :: glfw.WaitEventsTimeout
+wait_events_timeout :: proc "contextless" (timeout: f64) {
+	clear_events()
+	glfw.WaitEventsTimeout(timeout)
+}
 
 /* Posts an empty event to the event queue. */
 post_empty_event :: glfw.PostEmptyEvent
