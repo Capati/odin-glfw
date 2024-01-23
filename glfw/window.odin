@@ -287,7 +287,7 @@ Enabled_Events :: enum {
 }
 Enabled_Events_Flags :: bit_set[Enabled_Events]
 
-DEFAULT_ENABLED_EVENTS :: Enabled_Events_Flags{
+ALL_EVENTS_ENABLED :: Enabled_Events_Flags {
 	.Key,
 	.Char,
 	.Cursor_Pos,
@@ -308,12 +308,12 @@ DEFAULT_ENABLED_EVENTS :: Enabled_Events_Flags{
 }
 
 /* Creates a window and its associated context. */
-create_window :: proc (
+create_window :: proc(
 	width, height: u32,
 	title: string,
 	monitor: Monitor = nil,
 	share: Window = nil,
-	enabled_events := DEFAULT_ENABLED_EVENTS,
+	enabled_events: Enabled_Events_Flags = {},
 	loc := #caller_location,
 ) -> (
 	window: Window,
@@ -327,8 +327,12 @@ create_window :: proc (
 
 	// Setup custom callbacks
 	if window != nil {
-		_window_handles[window] = Window_Handle{ enabled = enabled_events }
-		_setup_window_callbacks(window, enabled_events)
+		when !GLFW_DISABLE_CUSTOM_CALLBACKS && !GLFW_DISABLE_CUSTOM_EVENTS {
+			_window_handles[window] = Window_Handle {
+				enabled = enabled_events,
+			}
+			_setup_window_callbacks(window, enabled_events)
+		}
 		return
 	}
 
@@ -336,69 +340,73 @@ create_window :: proc (
 }
 
 @(private)
-_setup_window_callbacks :: proc (window: Window, enabled: Enabled_Events_Flags) {
+_setup_window_callbacks :: proc(window: Window, enabled: Enabled_Events_Flags) {
 	if window == nil do return
 
 	// No events enabled
 	if enabled == {} do return
 
-	// Setup enabled callbacks used for the custom event loop
-	if .Key in enabled {
-		glfw.SetKeyCallback(window, _key_callback)
-	}
-	if .Char in enabled {
-		glfw.SetCharCallback(window, _char_callback)
-	}
-	if .Cursor_Pos in enabled {
-		glfw.SetCursorPosCallback(window, _cursor_pos_callback)
-	}
-	if .Mouse_Button in enabled {
-		glfw.SetMouseButtonCallback(window, _mouse_button_callback)
-	}
-	if .Scroll in enabled {
-		glfw.SetScrollCallback(window, _scroll_callback)
-	}
-	if .Window_Close in enabled {
-		glfw.SetWindowCloseCallback(window, _close_callback)
-	}
-	if .Window_Focus in enabled {
-		glfw.SetWindowFocusCallback(window, _window_focus_callback)
-	}
-	if .Cursor_Enter in enabled {
-		glfw.SetCursorEnterCallback(window, _cursor_enter_callback)
-	}
-	if .Window_Iconify in enabled {
-		glfw.SetWindowIconifyCallback(window, _window_iconify_callback)
-	}
-	if .Window_Maximize in enabled {
-		glfw.SetWindowMaximizeCallback(window, _window_maximize_proc)
-	}
-	if .Framebuffer_Size in enabled {
-		glfw.SetFramebufferSizeCallback(window, _framebuffer_size_callback)
-	}
-	if .Window_Size in enabled {
-		glfw.SetWindowSizeCallback(window, _window_size_callback)
-	}
-	if .Window_Pos in enabled {
-		glfw.SetWindowPosCallback(window, _window_pos_callback)
-	}
-	if .Window_Refresh in enabled {
-		glfw.SetWindowRefreshCallback(window, _window_refresh_callback)
-	}
-	if .Window_Content_Scale in enabled {
-		glfw.SetWindowContentScaleCallback(window, _window_content_scale_callback)
-	}
-	if .Char_Mods in enabled {
-		glfw.SetCharModsCallback(window, _char_mods_callback)
-	}
-	if .Drop in enabled {
-		glfw.SetDropCallback(window, _drop_callback)
+	when !GLFW_DISABLE_CUSTOM_CALLBACKS && !GLFW_DISABLE_CUSTOM_EVENTS {
+		// Setup enabled callbacks used for the custom event loop
+		if .Key in enabled {
+			glfw.SetKeyCallback(window, _key_callback)
+		}
+		if .Char in enabled {
+			glfw.SetCharCallback(window, _char_callback)
+		}
+		if .Cursor_Pos in enabled {
+			glfw.SetCursorPosCallback(window, _cursor_pos_callback)
+		}
+		if .Mouse_Button in enabled {
+			glfw.SetMouseButtonCallback(window, _mouse_button_callback)
+		}
+		if .Scroll in enabled {
+			glfw.SetScrollCallback(window, _scroll_callback)
+		}
+		if .Window_Close in enabled {
+			glfw.SetWindowCloseCallback(window, _close_callback)
+		}
+		if .Window_Focus in enabled {
+			glfw.SetWindowFocusCallback(window, _window_focus_callback)
+		}
+		if .Cursor_Enter in enabled {
+			glfw.SetCursorEnterCallback(window, _cursor_enter_callback)
+		}
+		if .Window_Iconify in enabled {
+			glfw.SetWindowIconifyCallback(window, _window_iconify_callback)
+		}
+		if .Window_Maximize in enabled {
+			glfw.SetWindowMaximizeCallback(window, _window_maximize_proc)
+		}
+		if .Framebuffer_Size in enabled {
+			glfw.SetFramebufferSizeCallback(window, _framebuffer_size_callback)
+		}
+		if .Window_Size in enabled {
+			glfw.SetWindowSizeCallback(window, _window_size_callback)
+		}
+		if .Window_Pos in enabled {
+			glfw.SetWindowPosCallback(window, _window_pos_callback)
+		}
+		if .Window_Refresh in enabled {
+			glfw.SetWindowRefreshCallback(window, _window_refresh_callback)
+		}
+		if .Window_Content_Scale in enabled {
+			glfw.SetWindowContentScaleCallback(window, _window_content_scale_callback)
+		}
+		if .Char_Mods in enabled {
+			glfw.SetCharModsCallback(window, _char_mods_callback)
+		}
+		if .Drop in enabled {
+			glfw.SetDropCallback(window, _drop_callback)
+		}
 	}
 }
 
 /* Destroys the specified window and its context. */
 destroy_window :: proc(window: Window) {
-	if window != nil do delete_key(&_window_handles, window)
+	when !GLFW_DISABLE_CUSTOM_CALLBACKS {
+		if window != nil do delete_key(&_window_handles, window)
+	}
 	glfw.DestroyWindow(window)
 }
 
@@ -448,7 +456,7 @@ Window_Pos :: struct {
 get_window_pos :: proc "contextless" (window: Window) -> Window_Pos {
 	x, y: c.int
 	glfw.GetWindowPos(window, &x, &y)
-	return { x = u32(x), y = u32(y)}
+	return {x = u32(x), y = u32(y)}
 }
 
 /* 	Sets the position of the content area of the specified window. */
@@ -464,7 +472,7 @@ Window_Size :: struct {
 get_window_size :: proc "contextless" (window: Window) -> Window_Size {
 	width, height: c.int
 	glfw.GetWindowSize(window, &width, &height)
-	return { width = u32(width), height = u32(height) }
+	return {width = u32(width), height = u32(height)}
 }
 
 /* Sets the size limits of the specified window. */
@@ -580,33 +588,30 @@ set_window_monitor :: proc "contextless" (
 }
 
 Window_Attributes :: enum c.int {
-    Focused = FOCUSED,
-	Iconified = ICONIFIED,
-    Maximized = MAXIMIZED,
-    Hovered = HOVERED,
-    Visible = VISIBLE,
-    Rresizable = RESIZABLE,
-    Decorated = DECORATED,
-    Auto_Iconify = AUTO_ICONIFY,
-    Floating = FLOATING,
-    Transparent_Framebuffer = TRANSPARENT_FRAMEBUFFER,
-    Focus_On_Show = FOCUS_ON_SHOW,
-    Mouse_Passthrough = MOUSE_PASSTHROUGH,
-
-    Client_Api = CLIENT_API,
-    Context_Creation_Api = CONTEXT_CREATION_API,
-    Context_Version_Major = CONTEXT_VERSION_MAJOR,
-    Context_Version_Minor = CONTEXT_VERSION_MINOR,
-    Context_Revision = CONTEXT_REVISION,
-    Opengl_Forward_Compat = OPENGL_FORWARD_COMPAT,
-    Context_Debug = CONTEXT_DEBUG,
-    Opengl_Profile = OPENGL_PROFILE,
-
-    Context_Release_Behavior = CONTEXT_RELEASE_BEHAVIOR,
-    Context_No_Error = CONTEXT_NO_ERROR,
-    Context_Robustness = CONTEXT_ROBUSTNESS,
-
-    Doublebuffer = DOUBLEBUFFER,
+	Focused                  = FOCUSED,
+	Iconified                = ICONIFIED,
+	Maximized                = MAXIMIZED,
+	Hovered                  = HOVERED,
+	Visible                  = VISIBLE,
+	Rresizable               = RESIZABLE,
+	Decorated                = DECORATED,
+	Auto_Iconify             = AUTO_ICONIFY,
+	Floating                 = FLOATING,
+	Transparent_Framebuffer  = TRANSPARENT_FRAMEBUFFER,
+	Focus_On_Show            = FOCUS_ON_SHOW,
+	Mouse_Passthrough        = MOUSE_PASSTHROUGH,
+	Client_Api               = CLIENT_API,
+	Context_Creation_Api     = CONTEXT_CREATION_API,
+	Context_Version_Major    = CONTEXT_VERSION_MAJOR,
+	Context_Version_Minor    = CONTEXT_VERSION_MINOR,
+	Context_Revision         = CONTEXT_REVISION,
+	Opengl_Forward_Compat    = OPENGL_FORWARD_COMPAT,
+	Context_Debug            = CONTEXT_DEBUG,
+	Opengl_Profile           = OPENGL_PROFILE,
+	Context_Release_Behavior = CONTEXT_RELEASE_BEHAVIOR,
+	Context_No_Error         = CONTEXT_NO_ERROR,
+	Context_Robustness       = CONTEXT_ROBUSTNESS,
+	Doublebuffer             = DOUBLEBUFFER,
 }
 
 /* Returns an attribute of the specified window. */

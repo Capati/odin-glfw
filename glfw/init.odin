@@ -9,15 +9,23 @@ import glfw "bindings"
 
 /* Initializes the GLFW library. */
 init :: proc (allocator := context.allocator) -> (ok: bool) {
-	if init_events(allocator) != nil do return false
-	_window_handles.allocator = allocator
+	when !GLFW_DISABLE_CUSTOM_CALLBACKS && !GLFW_DISABLE_CUSTOM_EVENTS {
+		if init_events(allocator) != nil do return false
+	}
+	when !GLFW_DISABLE_CUSTOM_CALLBACKS {
+		_window_handles.allocator = allocator
+	}
 	return bool(glfw.Init())
 }
 
 /* Terminates the GLFW library. */
 terminate :: proc() {
-	delete(_events.data)
-	delete(_window_handles)
+	when !GLFW_DISABLE_CUSTOM_CALLBACKS && !GLFW_DISABLE_CUSTOM_EVENTS {
+		delete(_events.data)
+	}
+	when !GLFW_DISABLE_CUSTOM_CALLBACKS {
+		delete(_window_handles)
+	}
 	glfw.Terminate()
 }
 
