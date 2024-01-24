@@ -8,7 +8,7 @@ import "core:runtime"
 import glfw "bindings"
 
 /* Initializes the GLFW library. */
-init :: proc (allocator := context.allocator) -> (ok: bool) {
+init :: proc(allocator := context.allocator) -> (ok: bool) {
 	when !GLFW_DISABLE_CUSTOM_CALLBACKS && !GLFW_DISABLE_CUSTOM_EVENTS {
 		if init_events(allocator) != nil do return false
 	}

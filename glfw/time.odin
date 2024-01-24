@@ -12,7 +12,6 @@ MAX_SECONDS: f64 = math.floor_f64(
     (math.pow_f64(2, 64) - 1) / math.pow_f64(10, 9),
 )
 
-/* Returns the GLFW time. */
 get_time :: proc "contextless" () -> f64 {
 	return glfw.GetTime()
 }

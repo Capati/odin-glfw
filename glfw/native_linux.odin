@@ -4,6 +4,7 @@ package glfw
 // Core
 import "core:c"
 
+// odinfmt: disable
 when GLFW_USE_SYSTEM_LIBRARIES {
 	foreign import glfw "system:glfw"
 } else {
@@ -19,6 +20,7 @@ when GLFW_USE_SYSTEM_LIBRARIES {
 		#panic("GLFW for Linux support only x86_x64")
 	}
 }
+// odinfmt: enable
 
 @(default_calling_convention = "c")
 foreign glfw {

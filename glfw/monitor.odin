@@ -2,8 +2,8 @@ package glfw
 
 // Core
 import "core:c"
-import "core:runtime"
 import "core:mem"
+import "core:runtime"
 
 // Bindings
 import glfw "bindings"
@@ -74,7 +74,7 @@ get_monitor_name :: proc "contextless" (monitor: Monitor) -> string {
 
 /* Sets the user pointer of the specified monitor. */
 set_monitor_user_pointer :: proc "contextless" (monitor: Monitor, pointer: ^$T) {
-    glfw.SetMonitorUserPointer(monitor, pointer)
+	glfw.SetMonitorUserPointer(monitor, pointer)
 }
 
 /* Returns the user pointer of the specified monitor. */
@@ -129,7 +129,7 @@ get_video_modes_allocate :: proc(
 	return
 }
 
-get_video_modes :: proc{
+get_video_modes :: proc {
 	get_video_modes_raw,
 	get_video_modes_allocate,
 }
@@ -138,7 +138,7 @@ get_video_modes :: proc{
 get_video_mode :: proc "contextless" (monitor: Monitor) -> (mode: Video_Mode) {
 	_mode := glfw.GetVideoMode(monitor)
 
-	mode = Video_Mode{
+	mode = Video_Mode {
 		width        = _mode.width,
 		height       = _mode.height,
 		red_bits     = _mode.red_bits,
@@ -158,26 +158,28 @@ set_gamma :: proc "contextless" (monitor: Monitor, gamma: f32, loc := #caller_lo
 		assert(gamma < max(f32), "Game value is too big", loc)
 	}
 
-    glfw.SetGamma(monitor, gamma)
+	glfw.SetGamma(monitor, gamma)
 }
 
 /* Returns the current gamma ramp for the specified monitor. */
 get_gamma_ramp :: proc "contextless" (monitor: Monitor) -> Gamma_Ramp {
 	ramp := glfw.GetGammaRamp(monitor)
-	return {
-		red = ramp.red[:ramp.size],
-		green = ramp.green[:ramp.size],
-		blue = ramp.blue[:ramp.size],
-	}
+	return(
+		 {
+			red = ramp.red[:ramp.size],
+			green = ramp.green[:ramp.size],
+			blue = ramp.blue[:ramp.size],
+		} \
+	)
 }
 
 /* Sets the current gamma ramp for the specified monitor. */
 set_gamma_ramp :: proc "contextless" (monitor: Monitor, ramp: Gamma_Ramp) {
-	ramp := glfw.Gamma_Ramp{
-		red = &ramp.red[0],
+	ramp := glfw.Gamma_Ramp {
+		red   = &ramp.red[0],
 		green = &ramp.green[0],
-		blue = &ramp.blue[0],
-		size = c.uint(len(ramp.red)),
+		blue  = &ramp.blue[0],
+		size  = c.uint(len(ramp.red)),
 	}
 
 	glfw.SetGammaRamp(monitor, &ramp)

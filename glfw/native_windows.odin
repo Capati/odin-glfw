@@ -4,6 +4,7 @@ package glfw
 // Core
 import win32 "core:sys/windows"
 
+// odinfmt: disable
 when ODIN_ARCH == .amd64 {
 	when GLFW_SHARED {
 		foreign import glfw {
@@ -21,6 +22,7 @@ when ODIN_ARCH == .amd64 {
 } else {
 	#panic("GLFW for Windows support only x86_x64")
 }
+// odinfmt: enable
 
 @(default_calling_convention = "c")
 foreign glfw {

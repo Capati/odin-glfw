@@ -118,6 +118,7 @@ Window_Hint :: enum c.int {
 
 @(private)
 window_hint_bool :: proc "contextless" (hint: Window_Hint, value: bool, loc := #caller_location) {
+	// odinfmt: disable
 	#partial switch hint {
 	case .Resizable, .Visible, .Decorated, .Focused, .Auto_Iconify, .Floating, .Maximized,
 	.Center_Cursor, .Transparent_Framebuffer, .Focus_On_Show, .Mouse_Passthrough,
@@ -131,10 +132,12 @@ window_hint_bool :: proc "contextless" (hint: Window_Hint, value: bool, loc := #
 			panic("The 'bool' value does not support the given window hint", loc)
 		}
 	}
+	// odinfmt: enable
 }
 
 @(private)
 window_hint_int :: proc "contextless" (hint: Window_Hint, value: i32, loc := #caller_location) {
+	// odinfmt: disable
 	#partial switch hint {
 	case .Red_Bits, .Green_Bits, .Blue_Bits, .Alpha_Bits, .Depth_Bits, .Stencil_Bits,
 	.Accum_Red_Bits, .Accum_Green_Bits, .Accum_Blue_Bits, .Accum_Alpha_Bits, .Aux_Buffers,
@@ -147,6 +150,7 @@ window_hint_int :: proc "contextless" (hint: Window_Hint, value: i32, loc := #ca
 			panic("The 'integer' value does not support the given window hint", loc)
 		}
 	}
+	// odinfmt: enable
 }
 
 @(private)

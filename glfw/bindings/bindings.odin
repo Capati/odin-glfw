@@ -6,6 +6,7 @@ import "core:c"
 // Vendor
 import vk "vendor:vulkan"
 
+// odinfmt: disable
 when ODIN_OS == .Windows {
 	when ODIN_ARCH == .amd64 {
 		when GLFW_SHARED {
@@ -83,6 +84,7 @@ when ODIN_OS == .Windows {
 } else {
 	foreign import glfw "system:glfw"
 }
+// odinfmt: enable
 
 #assert(size_of(c.int) == size_of(b32))
 

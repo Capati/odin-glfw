@@ -4,6 +4,7 @@ package glfw
 // Core
 import NS "vendor:darwin/foundation"
 
+// odinfmt: disable
 when GLFW_USE_SYSTEM_LIBRARIES {
 	foreign import glfw "system:glfw"
 } else {
@@ -43,10 +44,11 @@ when GLFW_USE_SYSTEM_LIBRARIES {
 		#panic("Unsupported Darwin architecture")
 	}
 }
+// odinfmt: enable
 
-@(default_calling_convention="c", link_prefix="glfw")
+@(default_calling_convention = "c", link_prefix = "glfw")
 foreign glfw {
-    GetCocoaWindow :: proc(window: Window) -> ^NS.Window ---
+	GetCocoaWindow :: proc(window: Window) -> ^NS.Window ---
 }
 
 // TODO:
