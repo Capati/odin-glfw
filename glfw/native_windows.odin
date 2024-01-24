@@ -4,12 +4,22 @@ package glfw
 // Core
 import win32 "core:sys/windows"
 
-@(extra_linker_flags = "/NODEFAULTLIB:libcmt")
-foreign import glfw {
-	"./bindings/lib/glfw3.lib",
-	"system:user32.lib",
-	"system:gdi32.lib",
-	"system:shell32.lib",
+when ODIN_ARCH == .amd64 {
+	when GLFW_SHARED {
+		foreign import glfw {
+			"./bindings/lib/windows/x86_x64/glfw3dll.lib",
+		}
+	} else {
+		@(extra_linker_flags = "/NODEFAULTLIB:libcmt")
+		foreign import glfw {
+			"./bindings/lib/windows/x86_x64/glfw3.lib",
+			"system:user32.lib",
+			"system:gdi32.lib",
+			"system:shell32.lib",
+		}
+	}
+} else {
+	#panic("GLFW for Windows support only x86_x64")
 }
 
 @(default_calling_convention = "c")

@@ -4,11 +4,19 @@ package glfw
 // Core
 import "core:c"
 
-when #config(GLFW_USE_SYSTEM_LIBRARIES, false) {
+when GLFW_USE_SYSTEM_LIBRARIES {
 	foreign import glfw "system:glfw"
 } else {
-	foreign import glfw {
-		"bindings/lib/libglfw3.a",
+	when ODIN_ARCH == .amd64 {
+		when GLFW_SHARED {
+			foreign import glfw "bindings/lib/linux/x86_x64/libglfw3.so"
+		} else {
+			foreign import glfw {
+				"bindings/lib/linux/x86_x64/libglfw3.a",
+			}
+		}
+	} else {
+		#panic("GLFW for Linux support only x86_x64")
 	}
 }
 

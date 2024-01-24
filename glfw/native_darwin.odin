@@ -4,14 +4,43 @@ package glfw
 // Core
 import NS "vendor:darwin/foundation"
 
-when #config(GLFW_USE_SYSTEM_LIBRARIES, false) {
+when GLFW_USE_SYSTEM_LIBRARIES {
 	foreign import glfw "system:glfw"
 } else {
-	foreign import glfw {
-		"bindings/lib/darwin/libglfw3.a",
-		 "system:Cocoa.framework",
-		 "system:IOKit.framework",
-		 "system:OpenGL.framework",
+	when ODIN_ARCH == .amd64 {
+		when GLFW_SHARED {
+			foreign import glfw {
+				"lib/darwin/x86_x64/libglfw.3.dylib",
+				 "system:Cocoa.framework",
+				 "system:IOKit.framework",
+				 "system:OpenGL.framework",
+			}
+		} else {
+			foreign import glfw {
+				"lib/darwin/x86_x64/libglfw3.a",
+				 "system:Cocoa.framework",
+				 "system:IOKit.framework",
+				 "system:OpenGL.framework",
+			}
+		}
+	} else when ODIN_ARCH == .arm64 {
+		when GLFW_SHARED {
+			foreign import glfw {
+				"lib/darwin/arm64/libglfw.3.dylib",
+				 "system:Cocoa.framework",
+				 "system:IOKit.framework",
+				 "system:OpenGL.framework",
+			}
+		} else {
+			foreign import glfw {
+				"lib/darwin/arm64/libglfw3.a",
+				 "system:Cocoa.framework",
+				 "system:IOKit.framework",
+				 "system:OpenGL.framework",
+			}
+		}
+	} else {
+		#panic("Unsupported Darwin architecture")
 	}
 }
 

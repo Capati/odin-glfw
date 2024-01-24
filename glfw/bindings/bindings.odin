@@ -7,30 +7,77 @@ import "core:c"
 import vk "vendor:vulkan"
 
 when ODIN_OS == .Windows {
-	@(extra_linker_flags = "/NODEFAULTLIB:libcmt")
-	foreign import glfw {
-		"./lib/glfw3.lib",
-		"system:user32.lib",
-		"system:gdi32.lib",
-		"system:shell32.lib",
+	when ODIN_ARCH == .amd64 {
+		when GLFW_SHARED {
+			foreign import glfw {
+				"./lib/windows/x86_x64/glfw3dll.lib",
+			}
+		} else {
+			@(extra_linker_flags = "/NODEFAULTLIB:libcmt")
+			foreign import glfw {
+				"./lib/windows/x86_x64/glfw3.lib",
+				"system:user32.lib",
+				"system:gdi32.lib",
+				"system:shell32.lib",
+			}
+		}
+	} else {
+		#panic("GLFW for Windows support only x86_x64")
 	}
 } else when ODIN_OS == .Linux {
-	when #config(GLFW_USE_SYSTEM_LIBRARIES, false) {
+	when GLFW_USE_SYSTEM_LIBRARIES {
 		foreign import glfw "system:glfw"
 	} else {
-		foreign import glfw {
-			"lib/libglfw3.a",
+		when ODIN_ARCH == .amd64 {
+			when GLFW_SHARED {
+				foreign import glfw "lib/linux/x86_x64/libglfw3.so"
+			} else {
+				foreign import glfw {
+					"lib/linux/x86_x64/libglfw3.a",
+				}
+			}
+		} else {
+			#panic("GLFW for Linux support only x86_x64")
 		}
 	}
 } else when ODIN_OS == .Darwin {
-	when #config(GLFW_USE_SYSTEM_LIBRARIES, false) {
+	when GLFW_USE_SYSTEM_LIBRARIES {
 		foreign import glfw "system:glfw"
 	} else {
-		foreign import glfw {
-			"lib/darwin/libglfw3.a",
-			 "system:Cocoa.framework",
-			 "system:IOKit.framework",
-			 "system:OpenGL.framework",
+		when ODIN_ARCH == .amd64 {
+			when GLFW_SHARED {
+				foreign import glfw {
+					"lib/darwin/x86_x64/libglfw.3.dylib",
+					 "system:Cocoa.framework",
+					 "system:IOKit.framework",
+					 "system:OpenGL.framework",
+				}
+			} else {
+				foreign import glfw {
+					"lib/darwin/x86_x64/libglfw3.a",
+					 "system:Cocoa.framework",
+					 "system:IOKit.framework",
+					 "system:OpenGL.framework",
+				}
+			}
+		} else when ODIN_ARCH == .arm64 {
+			when GLFW_SHARED {
+				foreign import glfw {
+					"lib/darwin/arm64/libglfw.3.dylib",
+					 "system:Cocoa.framework",
+					 "system:IOKit.framework",
+					 "system:OpenGL.framework",
+				}
+			} else {
+				foreign import glfw {
+					"lib/darwin/arm64/libglfw3.a",
+					 "system:Cocoa.framework",
+					 "system:IOKit.framework",
+					 "system:OpenGL.framework",
+				}
+			}
+		} else {
+			#panic("Unsupported Darwin architecture")
 		}
 	}
 } else {
@@ -39,7 +86,6 @@ when ODIN_OS == .Windows {
 
 #assert(size_of(c.int) == size_of(b32))
 
-/*** Functions ***/
 @(default_calling_convention = "c", link_prefix = "glfw")
 foreign glfw {
 	Init :: proc() -> b32 ---
@@ -58,7 +104,7 @@ foreign glfw {
 	SetErrorCallback :: proc(cb_proc: Error_Proc) -> Error_Proc ---
 
 	GetPlatform :: proc() -> c.int ---
-    PlatformSupported :: proc(platform: c.int) -> c.int ---
+	PlatformSupported :: proc(platform: c.int) -> c.int ---
 
 	GetMonitors :: proc(count: ^c.int) -> [^]Monitor ---
 	GetPrimaryMonitor :: proc() -> Monitor ---
@@ -195,5 +241,4 @@ foreign glfw {
 	SetCharModsCallback :: proc(window: Window, cbfun: Char_Mods_Proc) -> Char_Mods_Proc ---
 	SetCursorEnterCallback :: proc(window: Window, cbfun: Cursor_Enter_Proc) -> Cursor_Enter_Proc ---
 	SetJoystickCallback :: proc(cbfun: Joystick_Proc) -> Joystick_Proc ---
-
 }
