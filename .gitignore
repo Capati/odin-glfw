@@ -10,9 +10,12 @@ build
 
 *.sublime-workspace
 
-# vs code
+# VS Code
 
 /.vscode/*.log
 
 # Odin
 ols.json
+
+# Mac OS
+**/.DS_Store
