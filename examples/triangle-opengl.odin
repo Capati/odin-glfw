@@ -93,13 +93,6 @@ main :: proc() {
 	)
 	image.destroy(image1);image.destroy(image2)
 
-	// Enable Caps Lock and Num Lock modifiers
-	glfw.enable_lock_key_mods(window, true)
-	// The same as above:
-	// glfw.set_input_mode(window, .Lock_Key_Mods, true)
-
-	// glfw.set_framebuffer_size_callback(window, framebuffer_size_callback)
-
 	// Create the OpenGL context for the current window
 	glfw.make_context_current(window)
 	gl.load_up_to(OPEN_GL_VERSION_MAJOR, OPEN_GL_VERSION_MINOR, glfw.gl_set_proc_address)
@@ -195,7 +188,3 @@ main :: proc() {
 error_callback :: proc(code: glfw.Error_Code, description: string) {
 	fmt.eprintf("GLFW Error [%v]: %s\n", code, description)
 }
-
-// framebuffer_size_callback :: proc(window: glfw.Window, size: glfw.Framebuffer_Size) {
-// 	gl.Viewport(0, 0, i32(size.width), i32(size.height))
-// }
