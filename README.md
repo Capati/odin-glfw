@@ -18,6 +18,19 @@ On Linux or Mac, you can tell the library to link against system `glfw3` instead
 
 Read the [GLFW documentation](https://www.glfw.org/docs/3.4/index.html) for detailed instructions on how to use the library. The Odin interface is idiomatic but almost identical to the underlying C interface, with a few notable differences.
 
+### Naming Conventions
+
+Types and values follow the [Odin Naming Convention](https://github.com/odin-lang/Odin/wiki/Naming-Convention). In general, `Ada_Case` for types and `snake_case` for values:
+
+|                    | Case                                |
+| ------------------ | ----------------------------------- |
+| Import Name        | snake_case (but prefer single word) |
+| Types              | Ada_Case                            |
+| Enum Values        | Ada_Case                            |
+| Procedures         | snake_case                          |
+| Local Variables    | snake_case                          |
+| Constant Variables | SCREAMING_SNAKE_CASE                |
+
 ### Types
 
 Callbacks and most types are wrapped, except the opaque ones (`Window`, `Monitor`, `Cursor`) and `Allocator`.
