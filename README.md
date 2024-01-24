@@ -2,23 +2,44 @@
 
 A [GLFW](https://www.glfw.org/) binding for [Odin Language](https://odin-lang.org/) with idiomatic features, utility functions and custom event loop.
 
-## Linking
-
-All platforms binds to a static GLFW.
-
 ## Installation
 
 Just copy the `glfw` folder into the shared collection or inside your project.
 
+## Linking
+
+All platforms by default binds to a static GLFW, to bind for a shared library, set the Odin config value `GLFW_SHARED` as `true`.
+
+On Linux or Mac, you can tell the library to link against system `glfw3` instead of one provided in the directory by defining the Odin config value `GLFW_USE_SYSTEM_LIBRARIES` as `true`.
+
+**Note**: Pre compiled binaries for mac is not ready yet, you can try to compile yourself by [reading the documentation](https://www.glfw.org/docs/3.4/compile_guide.html#compile_mingw_cross) or help us with a pull request.
+
 ## Usage
 
-Read the [GLFW documentation](https://www.glfw.org/docs/3.4/index.html) for detailed instructions on how to use the library. The Odin interface is idiomatic but almost identical to the underlying C interface, with a few notable differences:
+Read the [GLFW documentation](https://www.glfw.org/docs/3.4/index.html) for detailed instructions on how to use the library. The Odin interface is idiomatic but almost identical to the underlying C interface, with a few notable differences.
 
-- Most types are wrapped, except the opaque ones (`Window`, `Monitor`, `Cursor`) and `Allocator`.
+### Types
 
-- The `Allocator` is a new feature of 3.4 but there is no custom allocator for it yet.
+Callbacks and most types are wrapped, except the opaque ones (`Window`, `Monitor`, `Cursor`) and `Allocator`.
 
-- Hints for initialization and window creation are typed and can panic if you provide an invalid value for a given hint.
+**Note**: The `Allocator` is a new feature of 3.4 but there is no custom allocator for it yet.
+
+Functions in the C interface that mutate values, the same values are wrapped in some struct.
+
+For example, the `glfwGetFramebufferSize` is implemented as follow:
+
+```odin
+/* Retrieves the size of the framebuffer of the specified window. */
+get_framebuffer_size :: proc "contextless" (window: Window) -> Framebuffer_Size {
+  width, height: c.int
+  glfw.GetFramebufferSize(window, &width, &height)
+  return {u32(width), u32(height)}
+}
+```
+
+### Hints
+
+Hints for initialization and window creation are typed and can panic if you provide an invalid value for a given hint.
 
 For example:
 
@@ -26,7 +47,13 @@ For example:
 glfw.window_hint(.OpenGL_Profile, "Core")
 ```
 
-The string "Core" is not a valid value for the hint `OpenGL_Profile`, you need to use the enum type `glfw.OpenGL_Profile`.
+The string "Core" is not a valid value for the hint `OpenGL_Profile`, you need to use the enum type `glfw.OpenGL_Profile`:
+
+```odin
+glfw.window_hint(.OpenGL_Profile, glfw.OpenGL_Profile.Core)
+```
+
+### Gamepad State
 
 - The `GLFWgamepadstate` in the C interface uses a fixed array of size and positions for buttons and axes. In this binding, a struct is utilized to provide a mapping for both buttons and axes:
 
@@ -54,7 +81,15 @@ if state.buttons.A {
 }
 ```
 
-- Input modes are typed too, so you can avoid invalid values that are not supported for a given mode.
+**Note**: All joysticks are mapped in the enum `Joystick_ID`, for example, `Joystick_ID.One` correspond to the GLFW constant `JOYSTICK_1`.
+
+### Gamepad Hats
+
+To get the state of all hats, you can use the `get_joystick_hats` procedure. This is the same as in the C interface, where an array is utilized, and you can check it with expressions like `up = (hats[0] & HAT_UP) != 0`. This is to avoid allocations on your end. However, if you prefer an idiomatic representation, when you have a raw hat, you can obtain a `Joystick_Hat` using either `get_hat_state_from_raw_hat` or `get_hat_state_from_state`.
+
+### Input Modes
+
+Input modes are typed too, so you can avoid invalid values that are not supported for a given mode.
 
 For example, use the typed procedure to enable Caps Lock and Num Lock modifiers:
 
@@ -66,19 +101,6 @@ The following version is the same as above, but can panic if you use an invalid 
 
 ```odin
 glfw.set_input_mode(window, .Lock_Key_Mods, true)
-```
-
-- Functions in the C interface that mutate values, the same values are wrapped in some struct.
-
-For example, the `glfwGetFramebufferSize` is implemented as follow:
-
-```odin
-/* Retrieves the size of the framebuffer of the specified window. */
-get_framebuffer_size :: proc "contextless" (window: Window) -> Framebuffer_Size {
-  width, height: c.int
-  glfw.GetFramebufferSize(window, &width, &height)
-  return {u32(width), u32(height)}
-}
 ```
 
 ## Custom callbacks
