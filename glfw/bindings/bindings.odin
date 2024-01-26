@@ -8,77 +8,49 @@ import vk "vendor:vulkan"
 
 // odinfmt: disable
 when ODIN_OS == .Windows {
-	when ODIN_ARCH == .amd64 {
-		when GLFW_SHARED {
-			foreign import glfw {
-				"./lib/windows/x86_x64/glfw3dll.lib",
-			}
-		} else {
-			@(extra_linker_flags = "/NODEFAULTLIB:libcmt")
-			foreign import glfw {
-				"./lib/windows/x86_x64/glfw3.lib",
-				"system:user32.lib",
-				"system:gdi32.lib",
-				"system:shell32.lib",
-			}
+	when GLFW_SHARED {
+		foreign import glfw {
+			"./lib/windows/glfw3dll.lib",
 		}
 	} else {
-		#panic("GLFW for Windows support only x86_x64")
+		@(extra_linker_flags = "/NODEFAULTLIB:libcmt")
+		foreign import glfw {
+			"./lib/windows/glfw3.lib",
+			"system:user32.lib",
+			"system:gdi32.lib",
+			"system:shell32.lib",
+		}
 	}
 } else when ODIN_OS == .Linux {
 	when GLFW_USE_SYSTEM_LIBRARIES {
 		foreign import glfw "system:glfw"
 	} else {
-		when ODIN_ARCH == .amd64 {
-			when GLFW_SHARED {
-				foreign import glfw "lib/linux/x86_x64/libglfw3.so"
-			} else {
-				foreign import glfw {
-					"lib/linux/x86_x64/libglfw3.a",
-				}
-			}
+		when GLFW_SHARED {
+			foreign import glfw "lib/linux/libglfw3.so"
 		} else {
-			#panic("GLFW for Linux support only x86_x64")
+			foreign import glfw {
+				"lib/linux/libglfw3.a",
+			}
 		}
 	}
 } else when ODIN_OS == .Darwin {
 	when GLFW_USE_SYSTEM_LIBRARIES {
 		foreign import glfw "system:glfw"
 	} else {
-		when ODIN_ARCH == .amd64 {
-			when GLFW_SHARED {
-				foreign import glfw {
-					"lib/darwin/x86_x64/libglfw.3.dylib",
-					 "system:Cocoa.framework",
-					 "system:IOKit.framework",
-					 "system:OpenGL.framework",
-				}
-			} else {
-				foreign import glfw {
-					"lib/darwin/x86_x64/libglfw3.a",
-					 "system:Cocoa.framework",
-					 "system:IOKit.framework",
-					 "system:OpenGL.framework",
-				}
-			}
-		} else when ODIN_ARCH == .arm64 {
-			when GLFW_SHARED {
-				foreign import glfw {
-					"lib/darwin/arm64/libglfw.3.dylib",
-					 "system:Cocoa.framework",
-					 "system:IOKit.framework",
-					 "system:OpenGL.framework",
-				}
-			} else {
-				foreign import glfw {
-					"lib/darwin/arm64/libglfw3.a",
-					 "system:Cocoa.framework",
-					 "system:IOKit.framework",
-					 "system:OpenGL.framework",
-				}
+		when GLFW_SHARED {
+			foreign import glfw {
+				"lib/darwin/libglfw.3.4.dylib",
+				"system:Cocoa.framework",
+				"system:IOKit.framework",
+				"system:OpenGL.framework",
 			}
 		} else {
-			#panic("Unsupported Darwin architecture")
+			foreign import glfw {
+				"lib/darwin/libglfw3.a",
+				"system:Cocoa.framework",
+				"system:IOKit.framework",
+				"system:OpenGL.framework",
+			}
 		}
 	}
 } else {

@@ -8,16 +8,12 @@ import "core:c"
 when GLFW_USE_SYSTEM_LIBRARIES {
 	foreign import glfw "system:glfw"
 } else {
-	when ODIN_ARCH == .amd64 {
-		when GLFW_SHARED {
-			foreign import glfw "bindings/lib/linux/x86_x64/libglfw3.so"
-		} else {
-			foreign import glfw {
-				"bindings/lib/linux/x86_x64/libglfw3.a",
-			}
-		}
+	when GLFW_SHARED {
+		foreign import glfw "bindings/lib/linux/libglfw3.so"
 	} else {
-		#panic("GLFW for Linux support only x86_x64")
+		foreign import glfw {
+			"bindings/lib/linux/libglfw3.a",
+		}
 	}
 }
 // odinfmt: enable

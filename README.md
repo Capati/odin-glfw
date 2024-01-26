@@ -12,8 +12,6 @@ All platforms by default binds to a static GLFW, to bind for a shared library, s
 
 On Linux or Mac, you can tell the library to link against system `glfw3` instead of one provided in the directory by defining the Odin config value `GLFW_USE_SYSTEM_LIBRARIES` as `true`.
 
-**Note**: Pre compiled binaries for mac is not ready yet, you can try to compile yourself by [reading the documentation](https://www.glfw.org/docs/3.4/compile_guide.html#compile_mingw_cross) or help us with a pull request.
-
 ## Usage
 
 Read the [GLFW documentation](https://www.glfw.org/docs/3.4/index.html) for detailed instructions on how to use the library. The Odin interface is idiomatic but almost identical to the underlying C interface, with a few notable differences.
