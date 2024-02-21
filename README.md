@@ -164,10 +164,11 @@ for !glfw.window_should_close(window) {
   glfw.poll_events()
 
   // Process the custom event loop (similar to SDL)
-  for glfw.has_next_event() {
-    #partial switch event in glfw.next_event() {
+  event: glfw.Event
+  for glfw.next_event(&event) {
+    #partial switch ev in event {
     case glfw.Key_Press_Event:
-      if event.key == .Escape {
+      if ev.key == .Escape {
         glfw.set_window_should_close(window, true)
       }
     }
@@ -177,9 +178,7 @@ for !glfw.window_should_close(window) {
 
 The events are stored in a First-In-First-Out (FIFO) queue using the `core:container/queue` package. The queue is initialized when you invoke `glfw.init` and the default  capacity is enough to hold multiple events without requiring further allocations within the loop.
 
-First, `has_next_event` is called to check the presence of an event in the queue, followed by a call to `next_event` to retrieve the subsequent event. Because events are unions, the recommended approach for filtering by event type is using the pattern `switch X in union`. The `#partial` is used to avoid unhandled event cases.
-
-**Note**: Failure to call the `next_event` procedure will result in an infinite loop, as `has_next_event` in a for loop only checks for the queue length.
+To start, `next_event` is called with a `event` reference, this procedure check the presence of an event in the queue and retrieve the subsequent event. Because events are unions, the recommended approach for filtering by event type is using the pattern `switch X in union`. The `#partial` is used to avoid unhandled event cases.
 
 List of all events:
 
