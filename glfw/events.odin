@@ -193,8 +193,10 @@ clear_events :: proc "contextless" () {
 }
 
 /* Get the next event in the event queue. */
-next_event :: proc() -> Event {
-	return queue.pop_front(&_events)
+next_event :: proc(event: ^Event) -> bool {
+	if !has_next_event() do return false
+	event^ = queue.pop_front(&_events)
+	return true
 }
 
 /* Check if there is pending events to get. */

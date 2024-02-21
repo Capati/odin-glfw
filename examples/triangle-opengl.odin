@@ -158,15 +158,16 @@ main :: proc() {
 		glfw.poll_events()
 
 		// Process the custom event loop (similar to SDL)
-		for glfw.has_next_event() {
-			#partial switch event in glfw.next_event() {
+		event: glfw.Event
+		for glfw.next_event(&event) {
+			#partial switch ev in event {
 			case glfw.Key_Press_Event:
-				if event.key == .Escape {
+				if ev.key == .Escape {
 					glfw.set_window_should_close(window, true)
 				}
 			case glfw.Framebuffer_Resize_Event:
-				ratio = f32(event.size.width) / f32(event.size.height)
-				gl.Viewport(0, 0, i32(event.size.width), i32(event.size.height))
+				ratio = f32(ev.size.width) / f32(ev.size.height)
+				gl.Viewport(0, 0, i32(ev.size.width), i32(ev.size.height))
 			}
 		}
 
